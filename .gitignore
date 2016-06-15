@@ -27,6 +27,9 @@
 *.out
 *.app
 
+# Sublime project files
+*sublime*
+
 # Import from abc project
 DebugLib/
 DebugExe/
@@ -82,4 +85,5 @@ build/
 
 libabc.a
 abc
+!*abc/
 arch_flags
