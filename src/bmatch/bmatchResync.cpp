@@ -1,6 +1,6 @@
 /**CppFile**************************************************************
  
-  FileName    [resync.cpp] 
+  FileName    [bmatchResync.cpp] 
 
   SystemName  [ABC: Logic synthesis and verification system.]
 
@@ -44,9 +44,9 @@ void Bmatch_Resync( Abc_Ntk_t * &pNtk );
 
 /**Function*************************************************************
 
-  Synopsis    [Resync function]
+  Synopsis    [Bmatch_Resync function]
 
-  Description []
+  Description [resync the input ntk]
                
   SideEffects []
 
