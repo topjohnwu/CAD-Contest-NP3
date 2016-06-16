@@ -18,9 +18,7 @@
 
 ***********************************************************************/
 
-
 #include "bmatch.h"
-#include "base/main/mainInt.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -31,8 +29,6 @@ ABC_NAMESPACE_IMPL_START
 ////////////////////////////////////////////////////////////////////////
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
-
-static int BmatchCommandBmatch          ( Abc_Frame_t * pAbc, int argc, char **argv );
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -63,9 +59,9 @@ void Bmatch_End( Abc_Frame_t * pAbc )
 
 /**Function*************************************************************
 
-  Synopsis    []
+  Synopsis    [bmatch command]
 
-  Description []
+  Description [Command for boolean matching]
                
   SideEffects []
 
@@ -83,4 +79,3 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 ////////////////////////////////////////////////////////////////////////
 
 ABC_NAMESPACE_IMPL_END
-
