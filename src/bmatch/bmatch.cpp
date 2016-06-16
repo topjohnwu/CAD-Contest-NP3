@@ -6,7 +6,7 @@
 
   PackageName [Boolean Matching NP3]
   
-  Synopsis    [Command file.]
+  Synopsis    [Command file]
 
   Author      [topjohnwu / Danny]
    
@@ -19,6 +19,7 @@
 ***********************************************************************/
 
 #include "bmatch.h"
+#include "base/main/mainInt.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -30,6 +31,17 @@ ABC_NAMESPACE_IMPL_START
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void Bmatch_Init( Abc_Frame_t * pAbc );
+void Bmatch_End( Abc_Frame_t * pAbc );
+static int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv );
+
+#ifdef __cplusplus
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 ///                     FUNCTION DEFINITIONS                         ///
@@ -71,7 +83,46 @@ void Bmatch_End( Abc_Frame_t * pAbc )
 
 int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 {
+    int c;
+    char ** pArgvNew;
+    int nArgcNew;
+    Abc_Ntk_t * pNtk1, * pNtk2;
+
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    {
+       switch ( c )
+       {
+          default:
+             goto usage;
+       }
+    }
+
+    pArgvNew = argv + globalUtilOptind;
+    nArgcNew = argc - globalUtilOptind;
+
+    if( nArgcNew != 2 )
+    {
+        printf("Invalid command!\n");
+        goto usage;
+    }
+
+    if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, NULL, NULL ) )
+        return 1;
+    Bmatch_Resync( pNtk1 );
+    Bmatch_Resync( pNtk2 );
+
+    // TODO: Functions below
+
+    // construct_qbf( pNtk1, pNtk2 );
+    // run_qbf();
+    // output
+
     return 0;
+
+usage:
+    Abc_Print( -2, "usage: bmatch <file1> <file2> \n" );
+    return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////

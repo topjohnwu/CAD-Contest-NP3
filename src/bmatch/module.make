@@ -1,1 +1,2 @@
-SRC +=  src/bmatch/bmatch.cpp
+SRC +=  src/bmatch/bmatch.cpp \
+		src/bmatch/bmatchResync.cpp
