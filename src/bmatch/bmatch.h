@@ -49,6 +49,7 @@ extern "C" {
 #endif
 
 extern void Bmatch_Resync( Abc_Ntk_t * &pNtk );
+extern void Bmatch_PrintNtkStats( Abc_Ntk_t * pNtk );
 
 #ifdef __cplusplus
 }
