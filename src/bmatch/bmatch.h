@@ -50,6 +50,7 @@ extern "C" {
 
 extern void Bmatch_Resync( Abc_Ntk_t * &pNtk );
 extern void Bmatch_PrintNtkStats( Abc_Ntk_t * pNtk );
+extern Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
 
 #ifdef __cplusplus
 }

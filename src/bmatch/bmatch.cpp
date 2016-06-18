@@ -87,7 +87,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     int c, fDelete1 = 0, fDelete2 = 0;
     char ** pArgvNew;
     int nArgcNew;
-    Abc_Ntk_t * pNtk1, * pNtk2;
+    Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
 
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
@@ -108,10 +108,17 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     }
     if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
         return 1;
+
     Bmatch_Resync( pNtk1 );
     Bmatch_Resync( pNtk2 );
+
     Bmatch_PrintNtkStats( pNtk1 );
     Bmatch_PrintNtkStats( pNtk2 );
+
+    pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
+    Bmatch_PrintNtkStats( pNtkQbf );
+    Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
+
     // TODO: Functions below
 
     // construct_qbf( pNtk1, pNtk2 );
