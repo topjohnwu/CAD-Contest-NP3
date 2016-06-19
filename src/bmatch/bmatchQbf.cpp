@@ -80,8 +80,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     printf("==== \n");
 
-<<<<<<< 346cbe30592a9a7c06f9f57471e87f9c31cb329b
-=======
     Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
     Abc_NtkAddDummyPiNames( pNtk_Qbf );
     Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
@@ -89,7 +87,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
->>>>>>> Add name prefix
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
         printf( "The AIG construction has failed.\n" );     
         Abc_NtkDelete( pNtk_Qbf );     
