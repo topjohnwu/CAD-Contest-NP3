@@ -177,6 +177,7 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
 
         Abc_ObjAssignName( pObjNew, pName, "_cir1" );
         delete pName;
+        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
     }
 
     assert( Abc_NtkIsDfsOrdered(pNtk1) );
