@@ -282,7 +282,6 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 }
 
 
-=======
 // NOTE: Unmodified yet
 
 void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nPars, int nItersMax, int fDumpCnf, int fVerbose )
@@ -442,7 +441,6 @@ clkV = Abc_Clock() - clkV;
     Vec_IntFree( vPiValues );
 }
 
->>>>>>> Add manual api for qbf
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
 ////////////////////////////////////////////////////////////////////////
