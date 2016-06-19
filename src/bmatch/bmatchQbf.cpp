@@ -178,10 +178,6 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         pNode->pCopy = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjChild0Copy(pNode), Abc_ObjChild1Copy(pNode) );
 } 
 
-////////////////////////////////////////////////////////////////////////
-///                     FUNCTION DEFINITIONS                         ///
-////////////////////////////////////////////////////////////////////////
-
 /**Function*************************************************************
 
   Synopsis    [Bmatch_CreatePIMUXes function]
@@ -215,6 +211,19 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
     Abc_AigForEachAnd( pNtk2, pObj, i )
         pObj->pCopy = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjChild0Copy(pObj), Abc_ObjChild1Copy(pObj) );
 }
+
+/**Function*************************************************************
+
+  Synopsis    [Bmatch_PrepareNtk1 function]
+
+  Description [Create PO MUXes]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
 
 void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
@@ -283,6 +292,19 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     Abc_NtkAddDummyBoxNames( pNtk_Qbf );
 }
 
+/**Function*************************************************************
+
+  Synopsis    [Bmatch_Construct_MUXes]
+
+  Description [Construct MUXes]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
+
 void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2, Abc_Ntk_t *& pNtk_Qbf, int &level)
 {
     vector< Abc_Obj_t * > new_Pi_Pool;
@@ -342,6 +364,19 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     }
 }
 
+/**Function*************************************************************
+
+  Synopsis    [Bmatch_Construct_ILP]
+
+  Description [Construct ILP circuit]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
+
 Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNtk_Qbf, const int & k )
 {
     int count = k;
@@ -359,7 +394,17 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
     return mux_Pool[Pool.size() - k + 1];
 }
 
-// NOTE: Unmodified yet
+/**Function*************************************************************
+
+  Synopsis    [Bmatch_SolveQbf]
+
+  Description [Solve QBF of the network]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
 
 void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose )
 {

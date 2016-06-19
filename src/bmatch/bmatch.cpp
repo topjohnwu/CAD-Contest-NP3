@@ -123,11 +123,10 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
     Bmatch_SolveQbf( pNtkQbf, Abc_NtkPiNum( pNtk1 ), 20, 0 );
 
-    // TODO: Functions below
-
-    // construct_qbf( pNtk1, pNtk2 );
-    // run_qbf();
-    // output
+    // TODO:
+    // Get QBF results
+    // Parse QBF
+    // Output to file
 
     return 0;
 
