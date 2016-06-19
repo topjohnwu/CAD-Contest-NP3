@@ -78,6 +78,11 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     printf("==== \n");
 
+    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
+    Abc_NtkAddDummyPiNames( pNtk_Qbf );
+    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
+    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
+
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
         printf( "The AIG construction has failed.\n" );     
         Abc_NtkDelete( pNtk_Qbf );     
@@ -150,7 +155,7 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         // remember this PI in the old PIs
         pObj->pCopy = pObjNew;
         // add name
-        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
+        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), "_cir1" );
     }
 
     assert( Abc_NtkIsDfsOrdered(pNtk1) );
@@ -238,11 +243,6 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
     Abc_ObjAddFanin( pOutput, pObj );
-
-    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
-    Abc_NtkAddDummyPiNames( pNtk_Qbf );
-    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
-    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
 }
 
 void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2, Abc_Ntk_t *& pNtk_Qbf, int &level)
