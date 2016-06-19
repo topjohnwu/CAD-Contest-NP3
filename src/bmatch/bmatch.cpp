@@ -114,6 +114,8 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 
     // Bmatch_PrintNtkStats( pNtk1 );
     // Bmatch_PrintNtkStats( pNtk2 );
+    Bmatch_PrintIO( pNtk1 );
+    Bmatch_PrintIO( pNtk2 );
 
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
     // Bmatch_PrintNtkStats( pNtkQbf );

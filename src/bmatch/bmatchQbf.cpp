@@ -220,7 +220,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
     int i, k, level = 1;
-    char * pSuffix = new char[3]; pSuffix = "00\0"; 
+    char * pSuffix = new char[3]; pSuffix = "z0\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
     char * pName;
@@ -242,6 +242,8 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         pObj = Abc_AigXor( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pPo->pCopy, Abc_ObjChild0Copy(pPo) );
         output_Pool.push_back( pObj );
     }
+
+    Po_Pool.clear();
     for( int j = 0; j < output_Pool.size(); ++j){
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
@@ -258,13 +260,14 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         delete pName;
 
         pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, output_Pool[j], Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)) );
-        control_Pool.push_back( pObj );
+        Po_Pool.push_back( pObj );
+        control_Pool.push_back( pObjA );
     }
 
-    pObj = control_Pool[0];
-    if( control_Pool.size() > 1){
-        for( int j = 0; j < control_Pool.size() - 1; ++j){
-            pObj = Abc_AigOr( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObj, control_Pool[j + 1]);
+    pObj = Po_Pool[0];
+    if( Po_Pool.size() > 1){
+        for( int j = 0; j < Po_Pool.size() - 1; ++j){
+            pObj = Abc_AigOr( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObj, Po_Pool[j + 1]);
         }
     }
 
@@ -344,16 +347,16 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
     int count = k;
     assert( count > 0 );
 
-    vector< Abc_Obj_t * > mux_Pool(Pool.size() + 2, Abc_AigConst1( pNtk_Qbf ));
+    vector< Abc_Obj_t * > mux_Pool(Pool.size() + 1, Abc_AigConst1( pNtk_Qbf ));
     mux_Pool[0] = Abc_ObjNot( Abc_AigConst1( pNtk_Qbf ) );
     while(count > 0){
-        for(int i = 0 + k - count; i < Pool.size() - count + 1; ++i){
-            mux_Pool[i + 2] =
-            Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Pool[i], mux_Pool[i + 1], mux_Pool[i] );
+        for(int i = 0; i < Pool.size() - k + 1; ++i){
+            mux_Pool[i + 1] =
+            Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Pool[i + k - count], mux_Pool[i + 1], mux_Pool[i] );
         }
         --count;
     }
-    return mux_Pool[Pool.size() + 1];
+    return mux_Pool[Pool.size() - k + 1];
 }
 
 // NOTE: Unmodified yet
