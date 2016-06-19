@@ -358,55 +358,19 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
 
 // NOTE: Unmodified yet
 
-void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nPars, int nItersMax, int fDumpCnf, int fVerbose )
+void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose )
 {
     Abc_Ntk_t * pNtkVer, * pNtkSyn, * pNtkSyn2, * pNtkTemp;
     Vec_Int_t * vPiValues;
     abctime clkTotal = Abc_Clock(), clkS, clkV;
-    int nIters, nInputs, RetValue, fFound = 0;
+    int nIters, nPars, RetValue, fFound = 0;
 
     assert( Abc_NtkIsStrash(pNtk) );
     assert( Abc_NtkIsComb(pNtk) );
     assert( Abc_NtkPoNum(pNtk) == 1 );
-    assert( nPars > 0 && nPars < Abc_NtkPiNum(pNtk) );
+    assert( nInputs > 0 && nInputs < Abc_NtkPiNum(pNtk) );
 //    assert( Abc_NtkPiNum(pNtk)-nPars < 32 );
-    nInputs = Abc_NtkPiNum(pNtk) - nPars;
-
-    if ( fDumpCnf )
-    {
-        // original problem: \exists p \forall x \exists y.  M(p,x,y)
-        // negated problem:  \forall p \exists x \exists y. !M(p,x,y)
-        //extern Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
-        Aig_Man_t * pMan = Abc_NtkToDar( pNtk, 0, 0 );
-        Cnf_Dat_t * pCnf = Cnf_Derive( pMan, 0 );
-        Vec_Int_t * vVarMap, * vForAlls, * vExists;
-        Aig_Obj_t * pObj;
-        char * pFileName;
-        int i, Entry;
-        // create var map
-        vVarMap = Vec_IntStart( pCnf->nVars );
-        Aig_ManForEachCi( pMan, pObj, i )
-            if ( i < nPars )
-                Vec_IntWriteEntry( vVarMap, pCnf->pVarNums[Aig_ObjId(pObj)], 1 );
-        // create various maps
-        vForAlls = Vec_IntAlloc( nPars );
-        vExists = Vec_IntAlloc( Abc_NtkPiNum(pNtk) - nPars );
-        Vec_IntForEachEntry( vVarMap, Entry, i )
-            if ( Entry )
-                Vec_IntPush( vForAlls, i );
-            else
-                Vec_IntPush( vExists, i );
-        // generate CNF
-        pFileName = Extra_FileNameGenericAppend( pNtk->pSpec, ".qdimacs" );
-        Cnf_DataWriteIntoFile( pCnf, pFileName, 0, vForAlls, vExists );
-        Aig_ManStop( pMan );
-        Cnf_DataFree( pCnf );
-        Vec_IntFree( vForAlls );
-        Vec_IntFree( vExists );
-        Vec_IntFree( vVarMap );
-        printf( "The 2QBF formula was written into file \"%s\".\n", pFileName );
-        return;
-    }
+    nPars = Abc_NtkPiNum(pNtk) - nInputs;
 
     // initialize the synthesized network with 0000-combination
     vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtk) );
@@ -433,17 +397,17 @@ void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nPars, int nItersMax, int fDumpCnf, 
     for ( nIters = 0; nIters < nItersMax; nIters++ )
     {
         // solve the synthesis instance
-clkS = Abc_Clock();
-//        RetValue = Abc_NtkMiterSat( pNtkSyn, 0, 0, 0, NULL, NULL );
+        clkS = Abc_Clock();
+        // RetValue = Abc_NtkMiterSat( pNtkSyn, 0, 0, 0, NULL, NULL );
         RetValue = Abc_NtkDSat( pNtkSyn, (ABC_INT64_T)0, (ABC_INT64_T)0, 0, 0, 0, 1, 0, 0, 0 );
-clkS = Abc_Clock() - clkS;
-        if ( RetValue == 0 )
+        clkS = Abc_Clock() - clkS;
+        if ( RetValue == 0 )  // SAT
             Abc_NtkModelToVector( pNtkSyn, vPiValues );
-        if ( RetValue == 1 )
+        if ( RetValue == 1 )  // UNSAT
         {
             break;
         }
-        if ( RetValue == -1 )
+        if ( RetValue == -1 )  // TIMEOUT
         {
             printf( "Synthesis timed out.\n" );
             break;
@@ -457,9 +421,9 @@ clkS = Abc_Clock() - clkS;
         Abc_ObjXorFaninC( Abc_NtkPo(pNtkVer,0), 0 );
 
         // solve the verification instance
-clkV = Abc_Clock();
+        clkV = Abc_Clock();
         RetValue = Abc_NtkMiterSat( pNtkVer, 0, 0, 0, NULL, NULL );
-clkV = Abc_Clock() - clkV;
+        clkV = Abc_Clock() - clkV;
         if ( RetValue == 0 )
             Abc_NtkModelToVector( pNtkVer, vPiValues );
         Abc_NtkDelete( pNtkVer );
@@ -467,6 +431,12 @@ clkV = Abc_Clock() - clkV;
         {
             fFound = 1;
             break;
+            // int nZeros = Vec_IntCountZero( vPiValues );
+            // printf( "Parameters: " );
+            // Abc_NtkVectorPrintPars( vPiValues, nPars );
+            // printf( "  Statistics: 0=%d 1=%d\n", nZeros, Vec_IntSize(vPiValues) - nZeros );
+            // printf( "Solved after %d interations.  \n", nIters );
+            // fFound = 0;
         }
         if ( RetValue == -1 )
         {
