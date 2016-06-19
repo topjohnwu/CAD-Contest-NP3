@@ -161,7 +161,7 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         // remember this PI in the old PIs
         pObj->pCopy = pObjNew;
         // add name
-        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
+
         pName = new char[20];
         int k = 0;
         while(1){
@@ -174,7 +174,6 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
 
         Abc_ObjAssignName( pObjNew, pName, "_cir1" );
         delete pName;
-        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
     }
 
     assert( Abc_NtkIsDfsOrdered(pNtk1) );
@@ -224,7 +223,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pOutput;
-    int i, level = 1;
+    int i, k, level = 1;
     char * pSuffix = new char[3]; pSuffix = "00\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
@@ -251,13 +250,12 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
         pName = new char[20];
-        int k = 0;
+        k = 0;
         while(1){
             *(pName + 2 + k) = *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k);
             if( *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k) == '\0') break;
             ++k;
         }
-        *(pName + 2) = *Abc_ObjName(Abc_NtkPo(pNtk2, j));
         *pName = 'x';
         *(pName + 1) = '_';
 
@@ -289,6 +287,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     vector< Abc_Obj_t * > new_Pi_Pool;
     Abc_Obj_t * pObj, * pObjA;
     char * pSuffix, * pName;
+    int k;
 
     assert( Pi_Pool.size() >= 1);
     if( Pi_Pool.size() >= 2){
@@ -297,7 +296,18 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         ++level;
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
-        Abc_ObjAssignName( pObjA, Abc_ObjName(pObj2), pSuffix );
+
+        pName = new char[20];
+        k = 0;
+        while(1){
+            *(pName + 2 + k) = *(Abc_ObjName(pObj2) + k);
+            if( *(Abc_ObjName(pObj2) + k) == '\0') break;
+            ++k;
+        }
+        *pName = 'x';
+        *(pName + 1) = '_';
+        Abc_ObjAssignName( pObjA, pName, pSuffix );
+        delete pName;
 
         for( int i = 0; i < Pi_Pool.size() - 1; i = i + 2 ){
             pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Pi_Pool[i], Pi_Pool[i + 1] );
@@ -323,7 +333,6 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         }
         *pName = 'x';
         *(pName + 1) = '_';
-
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
