@@ -116,7 +116,8 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     Bmatch_PrintNtkStats( pNtk2 );
 
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
-    Bmatch_PrintNtkStats( pNtkQbf );
+    // Bmatch_PrintNtkStats( pNtkQbf );
+    Bmatch_PrintIO( pNtkQbf );
     Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
 
     // TODO: Functions below

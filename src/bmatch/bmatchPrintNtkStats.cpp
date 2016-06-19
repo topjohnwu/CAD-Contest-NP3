@@ -33,7 +33,8 @@ ABC_NAMESPACE_IMPL_START
 extern "C" {
 #endif
 
-void Bmatch_PrintNtkStats( Abc_Ntk_t * pNtk );
+void Bmatch_PrintNtkStats       ( Abc_Ntk_t * pNtk );
+void Bmatch_PrintIO             ( Abc_Ntk_t * pNtk );
 
 #ifdef __cplusplus
 }
@@ -68,11 +69,26 @@ void Bmatch_PrintNtkStats( Abc_Ntk_t * pNtk )
     printf("number of Nodes = %d \n", nNodes);
 
     Abc_NtkForEachObj( pNtk, pObj, i){
-        printf("Name %8s : ", Abc_ObjName( pObj ));
+        printf("Name %15s : ", Abc_ObjName( pObj ));
         Abc_ObjPrint( stdout, pObj );
     }
 }
 
+void Bmatch_PrintIO( Abc_Ntk_t * pNtk )
+{
+    int i;
+    Abc_Obj_t * pObj;
+
+    Abc_NtkForEachPi( pNtk, pObj, i){
+        printf("PI %15s : ", Abc_ObjName( pObj) );
+        Abc_ObjPrint( stdout, pObj );
+    }
+
+    Abc_NtkForEachPo( pNtk, pObj, i){
+        printf("PO %8s : ", Abc_ObjName( pObj) );
+        Abc_ObjPrint( stdout, pObj );
+    }
+}
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
 ////////////////////////////////////////////////////////////////////////
