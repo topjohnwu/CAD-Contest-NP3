@@ -80,11 +80,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     printf("==== \n");
 
-    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
-    Abc_NtkAddDummyPiNames( pNtk_Qbf );
-    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
-    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
-
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
@@ -277,7 +272,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     Abc_ObjAddFanin( pOutput, pObj );
 
     Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
-    Abc_NtkAddDummyPiNames( pNtk_Qbf );
+    // Abc_NtkAddDummyPiNames( pNtk_Qbf );
     Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
     Abc_NtkAddDummyBoxNames( pNtk_Qbf );
 }

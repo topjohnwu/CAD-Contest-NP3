@@ -85,7 +85,7 @@ void Bmatch_PrintIO( Abc_Ntk_t * pNtk )
     }
 
     Abc_NtkForEachPo( pNtk, pObj, i){
-        printf("PO %8s : ", Abc_ObjName( pObj) );
+        printf("PO %15s : ", Abc_ObjName( pObj) );
         Abc_ObjPrint( stdout, pObj );
     }
 }
