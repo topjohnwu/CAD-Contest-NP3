@@ -37,6 +37,9 @@
 #include "sat/bmc/bmc.h"
 #include "map/mio/mio.h"
 
+// Add API for bmatch
+#include "bmatch/manual_api.h"
+
 ABC_NAMESPACE_IMPL_START
 
 ////////////////////////////////////////////////////////////////////////

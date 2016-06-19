@@ -78,11 +78,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     printf("==== \n");
 
-    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
-    Abc_NtkAddDummyPiNames( pNtk_Qbf );
-    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
-    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
-
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
         printf( "The AIG construction has failed.\n" );     
         Abc_NtkDelete( pNtk_Qbf );     
@@ -155,7 +150,7 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         // remember this PI in the old PIs
         pObj->pCopy = pObjNew;
         // add name
-        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), "_cir1" );
+        Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
     }
 
     assert( Abc_NtkIsDfsOrdered(pNtk1) );
@@ -243,6 +238,11 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
     Abc_ObjAddFanin( pOutput, pObj );
+
+    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
+    Abc_NtkAddDummyPiNames( pNtk_Qbf );
+    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
+    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
 }
 
 void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2, Abc_Ntk_t *& pNtk_Qbf, int &level)
@@ -282,6 +282,167 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 }
 
 
+=======
+// NOTE: Unmodified yet
+
+void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nPars, int nItersMax, int fDumpCnf, int fVerbose )
+{
+    Abc_Ntk_t * pNtkVer, * pNtkSyn, * pNtkSyn2, * pNtkTemp;
+    Vec_Int_t * vPiValues;
+    abctime clkTotal = Abc_Clock(), clkS, clkV;
+    int nIters, nInputs, RetValue, fFound = 0;
+
+    assert( Abc_NtkIsStrash(pNtk) );
+    assert( Abc_NtkIsComb(pNtk) );
+    assert( Abc_NtkPoNum(pNtk) == 1 );
+    assert( nPars > 0 && nPars < Abc_NtkPiNum(pNtk) );
+//    assert( Abc_NtkPiNum(pNtk)-nPars < 32 );
+    nInputs = Abc_NtkPiNum(pNtk) - nPars;
+
+    if ( fDumpCnf )
+    {
+        // original problem: \exists p \forall x \exists y.  M(p,x,y)
+        // negated problem:  \forall p \exists x \exists y. !M(p,x,y)
+        //extern Aig_Man_t * Abc_NtkToDar( Abc_Ntk_t * pNtk, int fExors, int fRegisters );
+        Aig_Man_t * pMan = Abc_NtkToDar( pNtk, 0, 0 );
+        Cnf_Dat_t * pCnf = Cnf_Derive( pMan, 0 );
+        Vec_Int_t * vVarMap, * vForAlls, * vExists;
+        Aig_Obj_t * pObj;
+        char * pFileName;
+        int i, Entry;
+        // create var map
+        vVarMap = Vec_IntStart( pCnf->nVars );
+        Aig_ManForEachCi( pMan, pObj, i )
+            if ( i < nPars )
+                Vec_IntWriteEntry( vVarMap, pCnf->pVarNums[Aig_ObjId(pObj)], 1 );
+        // create various maps
+        vForAlls = Vec_IntAlloc( nPars );
+        vExists = Vec_IntAlloc( Abc_NtkPiNum(pNtk) - nPars );
+        Vec_IntForEachEntry( vVarMap, Entry, i )
+            if ( Entry )
+                Vec_IntPush( vForAlls, i );
+            else
+                Vec_IntPush( vExists, i );
+        // generate CNF
+        pFileName = Extra_FileNameGenericAppend( pNtk->pSpec, ".qdimacs" );
+        Cnf_DataWriteIntoFile( pCnf, pFileName, 0, vForAlls, vExists );
+        Aig_ManStop( pMan );
+        Cnf_DataFree( pCnf );
+        Vec_IntFree( vForAlls );
+        Vec_IntFree( vExists );
+        Vec_IntFree( vVarMap );
+        printf( "The 2QBF formula was written into file \"%s\".\n", pFileName );
+        return;
+    }
+
+    // initialize the synthesized network with 0000-combination
+    vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtk) );
+
+    // create random init value
+    {
+    int i;
+    srand( time(NULL) );
+    for ( i = nPars; i < Abc_NtkPiNum(pNtk); i++ )
+        Vec_IntWriteEntry( vPiValues, i, rand() & 1 );
+    }
+
+    Abc_NtkVectorClearPars( vPiValues, nPars );
+    pNtkSyn = Abc_NtkMiterCofactor( pNtk, vPiValues );
+    if ( fVerbose )
+    {
+        printf( "Iter %2d : ", 0 );
+        printf( "AIG = %6d  ", Abc_NtkNodeNum(pNtkSyn) );
+        Abc_NtkVectorPrintVars( pNtk, vPiValues, nPars );
+        printf( "\n" );
+    }
+
+    // iteratively solve
+    for ( nIters = 0; nIters < nItersMax; nIters++ )
+    {
+        // solve the synthesis instance
+clkS = Abc_Clock();
+//        RetValue = Abc_NtkMiterSat( pNtkSyn, 0, 0, 0, NULL, NULL );
+        RetValue = Abc_NtkDSat( pNtkSyn, (ABC_INT64_T)0, (ABC_INT64_T)0, 0, 0, 0, 1, 0, 0, 0 );
+clkS = Abc_Clock() - clkS;
+        if ( RetValue == 0 )
+            Abc_NtkModelToVector( pNtkSyn, vPiValues );
+        if ( RetValue == 1 )
+        {
+            break;
+        }
+        if ( RetValue == -1 )
+        {
+            printf( "Synthesis timed out.\n" );
+            break;
+        }
+        // there is a counter-example
+
+        // construct the verification instance
+        Abc_NtkVectorClearVars( pNtk, vPiValues, nPars );
+        pNtkVer = Abc_NtkMiterCofactor( pNtk, vPiValues );
+        // complement the output
+        Abc_ObjXorFaninC( Abc_NtkPo(pNtkVer,0), 0 );
+
+        // solve the verification instance
+clkV = Abc_Clock();
+        RetValue = Abc_NtkMiterSat( pNtkVer, 0, 0, 0, NULL, NULL );
+clkV = Abc_Clock() - clkV;
+        if ( RetValue == 0 )
+            Abc_NtkModelToVector( pNtkVer, vPiValues );
+        Abc_NtkDelete( pNtkVer );
+        if ( RetValue == 1 )
+        {
+            fFound = 1;
+            break;
+        }
+        if ( RetValue == -1 )
+        {
+            printf( "Verification timed out.\n" );
+            break;
+        }
+        // there is a counter-example
+
+        // create a new synthesis network
+        Abc_NtkVectorClearPars( vPiValues, nPars );
+        pNtkSyn2 = Abc_NtkMiterCofactor( pNtk, vPiValues );
+        // add to the synthesis instance
+        pNtkSyn = Abc_NtkMiterAnd( pNtkTemp = pNtkSyn, pNtkSyn2, 0, 0 );
+        Abc_NtkDelete( pNtkSyn2 );
+        Abc_NtkDelete( pNtkTemp );
+
+        if ( fVerbose )
+        {
+            printf( "Iter %2d : ", nIters+1 );
+            printf( "AIG = %6d  ", Abc_NtkNodeNum(pNtkSyn) );
+            Abc_NtkVectorPrintVars( pNtk, vPiValues, nPars );
+            printf( "  " );
+            ABC_PRT( "Syn", clkS );
+//            ABC_PRT( "Ver", clkV );
+        }
+        if ( nIters+1 == nItersMax )
+            break;
+    }
+    Abc_NtkDelete( pNtkSyn );
+    // report the results
+    if ( fFound )
+    {
+        int nZeros = Vec_IntCountZero( vPiValues );
+        printf( "Parameters: " );
+        Abc_NtkVectorPrintPars( vPiValues, nPars );
+        printf( "  Statistics: 0=%d 1=%d\n", nZeros, Vec_IntSize(vPiValues) - nZeros );
+        printf( "Solved after %d interations.  ", nIters );
+    }
+    else if ( nIters == nItersMax )
+        printf( "Unsolved after %d interations.  ", nIters );
+    else if ( nIters == nItersMax )
+        printf( "Quit after %d interatios.  ", nItersMax );
+    else
+        printf( "Implementation does not exist.  " );
+    ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
+    Vec_IntFree( vPiValues );
+}
+
+>>>>>>> Add manual api for qbf
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
 ////////////////////////////////////////////////////////////////////////
