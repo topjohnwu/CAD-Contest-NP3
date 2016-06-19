@@ -43,6 +43,7 @@ void        Bmatch_PrepareNtk1          ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qb
 void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_CreatePOMUXesAndPO   ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & );
+Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 
 #ifdef __cplusplus
 }
@@ -217,7 +218,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 
 void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
-    Abc_Obj_t * pPo, * pObj, * pObjA, * pOutput;
+    Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
     int i, k, level = 1;
     char * pSuffix = new char[3]; pSuffix = "00\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
@@ -253,7 +254,6 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         }
         *pName = 'x';
         *(pName + 1) = '_';
-
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
@@ -268,6 +268,9 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         }
     }
 
+    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, 3);
+
+    pObj = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pILP, Abc_ObjNot(pObj) );
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
     Abc_ObjAddFanin( pOutput, pObj );
 
@@ -336,6 +339,22 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     }
 }
 
+Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNtk_Qbf, const int & k )
+{
+    int count = k;
+    assert( count > 0 );
+
+    vector< Abc_Obj_t * > mux_Pool(Pool.size() + 2, Abc_AigConst1( pNtk_Qbf ));
+    mux_Pool[0] = Abc_ObjNot( Abc_AigConst1( pNtk_Qbf ) );
+    while(count > 0){
+        for(int i = 0 + k - count; i < Pool.size() - count + 1; ++i){
+            mux_Pool[i + 2] =
+            Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Pool[i], mux_Pool[i + 1], mux_Pool[i] );
+        }
+        --count;
+    }
+    return mux_Pool[Pool.size() + 1];
+}
 
 // NOTE: Unmodified yet
 

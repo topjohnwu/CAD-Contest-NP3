@@ -1,0 +1,35 @@
+Cir1
+PI: a b c
+PO: e f g
+
+Cir2 
+PI: s m
+PO: k p
+
+Cir_QBF
+PI:
+x_s0  x_m0   -> 0 表示選取的 input 是否 invert
+x_s1  x_m1   -> 非 0 數字表示選取第幾個 input
+x_s2  x_m2
+
+x 表示 exist
+s, m 是 cir2 的 input
+後面的編碼表示選取 cir1 的第幾個 input
+
+x_k0  x_p0   -> 0 表示選取的 output 是否 invert
+x_k1  x_p1   -> 非 0 數字表示選取第幾個 output
+x_k2  x_p2
+x_k00 x_p00  -> 表示是否選取 NULL
+
+x 表示 exist
+k, p 是 cir2 的 output
+後面的編碼表示選取 cir1 的第幾個 output
+
+y_a
+y_b
+y_c
+
+y 表示 forall
+a, b, c 是 cir1 的 input
+
+PO:
