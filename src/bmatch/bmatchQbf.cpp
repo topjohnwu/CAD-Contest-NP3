@@ -20,6 +20,8 @@
 
 #include "bmatch.h"
 #include <vector>
+#include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -78,6 +80,16 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     printf("==== \n");
 
+<<<<<<< 346cbe30592a9a7c06f9f57471e87f9c31cb329b
+=======
+    Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
+    Abc_NtkAddDummyPiNames( pNtk_Qbf );
+    Abc_NtkAddDummyPoNames( pNtk_Qbf ); 
+    Abc_NtkAddDummyBoxNames( pNtk_Qbf );
+
+    Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
+
+>>>>>>> Add name prefix
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
         printf( "The AIG construction has failed.\n" );     
         Abc_NtkDelete( pNtk_Qbf );     
@@ -141,7 +153,9 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pObj, * pObjNew, * pNode;
+    char * pName;
     int i;
+
     Abc_AigConst1(pNtk1)->pCopy = Abc_AigConst1(pNtk_Qbf);
 
     Abc_NtkForEachPi( pNtk1, pObj, i )
@@ -151,6 +165,18 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         pObj->pCopy = pObjNew;
         // add name
         Abc_ObjAssignName( pObjNew, Abc_ObjName(pObj), NULL );
+        pName = new char[20];
+        int k = 0;
+        while(1){
+            *(pName + 2 + k) = *(Abc_ObjName(pObj) + k);
+            if( *(Abc_ObjName(pObj) + k) == '\0') break;
+            ++k;
+        }
+        *pName = 'y';
+        *(pName + 1) = '_';
+
+        Abc_ObjAssignName( pObjNew, pName, "_cir1" );
+        delete pName;
     }
 
     assert( Abc_NtkIsDfsOrdered(pNtk1) );
@@ -204,6 +230,8 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     char * pSuffix = new char[3]; pSuffix = "00\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
+    char * pName;
+
     Abc_NtkForEachPo( pNtk1, pPo, i)
     {
         Po_Pool.push_back( Abc_ObjChild0Copy(pPo) );  
@@ -223,7 +251,20 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     }
     for( int j = 0; j < output_Pool.size(); ++j){
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
-        Abc_ObjAssignName( pObjA, Abc_ObjName(Abc_NtkPo(pNtk2, j)), pSuffix );
+
+        pName = new char[20];
+        int k = 0;
+        while(1){
+            *(pName + 2 + k) = *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k);
+            if( *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k) == '\0') break;
+            ++k;
+        }
+        *(pName + 2) = *Abc_ObjName(Abc_NtkPo(pNtk2, j));
+        *pName = 'x';
+        *(pName + 1) = '_';
+
+        Abc_ObjAssignName( pObjA, pName, pSuffix );
+        delete pName;
 
         pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, output_Pool[j], Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)) );
         control_Pool.push_back( pObj );
@@ -249,7 +290,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 {
     vector< Abc_Obj_t * > new_Pi_Pool;
     Abc_Obj_t * pObj, * pObjA;
-    char * pSuffix;
+    char * pSuffix, * pName;
 
     assert( Pi_Pool.size() >= 1);
     if( Pi_Pool.size() >= 2){
@@ -274,7 +315,19 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         sprintf( pSuffix, "%d", 0);
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
-        Abc_ObjAssignName( pObjA, Abc_ObjName(pObj2), pSuffix );
+
+        pName = new char[20];
+        int k = 0;
+        while(1){
+            *(pName + 2 + k) = *(Abc_ObjName(pObj2) + k);
+            if( *(Abc_ObjName(pObj2) + k) == '\0') break;
+            ++k;
+        }
+        *pName = 'x';
+        *(pName + 1) = '_';
+
+        Abc_ObjAssignName( pObjA, pName, pSuffix );
+        delete pName;
 
         pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Pi_Pool[0], Abc_ObjNot( Pi_Pool[0] ) );
         pObj2->pCopy = pObj;
