@@ -254,7 +254,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
-        pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, output_Pool[j], Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)) );
+        pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), output_Pool[j] );
         Po_Pool.push_back( pObj );
         control_Pool.push_back( pObjA );
     }
@@ -266,9 +266,9 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         }
     }
 
-    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, 3);
+    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, 1);
 
-    pObj = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pILP, Abc_ObjNot(pObj) );
+    pObj = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjNot(pILP), Abc_ObjNot(pObj) );
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
     Abc_ObjAddFanin( pOutput, pObj );
 
@@ -311,7 +311,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         delete pName;
 
         for( int i = 0; i < Pi_Pool.size() - 1; i = i + 2 ){
-            pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Pi_Pool[i], Pi_Pool[i + 1] );
+            pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Pi_Pool[i + 1], Pi_Pool[i] );
             new_Pi_Pool.push_back( pObj );
         }
         if( !(Pi_Pool.size() % 2 == 0) ){
@@ -330,7 +330,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
-        pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Pi_Pool[0], Abc_ObjNot( Pi_Pool[0] ) );
+        pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot( Pi_Pool[0] ), Pi_Pool[0] );
         pObj2->pCopy = pObj;
     }
 }
