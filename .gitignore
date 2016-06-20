@@ -59,6 +59,7 @@ src/aig/ddb/
 *.ncb
 *.opt
 *.plg
+*.ps
 
 *.zip
 
