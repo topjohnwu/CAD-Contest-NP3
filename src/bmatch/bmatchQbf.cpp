@@ -44,6 +44,7 @@ void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, 
 void        Bmatch_CreatePOMUXesAndPO   ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & );
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
+char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
 
 #ifdef __cplusplus
 }
@@ -158,16 +159,8 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         pObj->pCopy = pObjNew;
         // add name
 
-        pName = new char[20];
-        int k = 0;
-        while(1){
-            *(pName + 2 + k) = *(Abc_ObjName(pObj) + k);
-            if( *(Abc_ObjName(pObj) + k) == '\0') break;
-            ++k;
-        }
-        *pName = 'y';
-        *(pName + 1) = '_';
-
+        pName = "y_";
+        pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj));
         Abc_ObjAssignName( pObjNew, pName, "_cir1" );
         delete pName;
     }
@@ -228,8 +221,8 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
-    int i, k, level = 1;
-    char * pSuffix = new char[3]; pSuffix = "z0\0"; 
+    int i, level = 1;
+    char * pSuffix = new char[3]; pSuffix = "|\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
     char * pName;
@@ -256,15 +249,8 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     for( int j = 0; j < output_Pool.size(); ++j){
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
-        pName = new char[20];
-        k = 0;
-        while(1){
-            *(pName + 2 + k) = *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k);
-            if( *(Abc_ObjName(Abc_NtkPo(pNtk2, j)) + k) == '\0') break;
-            ++k;
-        }
-        *pName = 'x';
-        *(pName + 1) = '_';
+        pName = "x_";
+        pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(Abc_NtkPo(pNtk2, j)));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
@@ -310,7 +296,6 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     vector< Abc_Obj_t * > new_Pi_Pool;
     Abc_Obj_t * pObj, * pObjA;
     char * pSuffix, * pName;
-    int k;
 
     assert( Pi_Pool.size() >= 1);
     if( Pi_Pool.size() >= 2){
@@ -320,15 +305,8 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
-        pName = new char[20];
-        k = 0;
-        while(1){
-            *(pName + 2 + k) = *(Abc_ObjName(pObj2) + k);
-            if( *(Abc_ObjName(pObj2) + k) == '\0') break;
-            ++k;
-        }
-        *pName = 'x';
-        *(pName + 1) = '_';
+        pName = "x_";
+        pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
@@ -347,15 +325,8 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
-        pName = new char[20];
-        int k = 0;
-        while(1){
-            *(pName + 2 + k) = *(Abc_ObjName(pObj2) + k);
-            if( *(Abc_ObjName(pObj2) + k) == '\0') break;
-            ++k;
-        }
-        *pName = 'x';
-        *(pName + 1) = '_';
+        pName = "x_";
+        pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
@@ -394,6 +365,21 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
     return mux_Pool[Pool.size() - k + 1];
 }
 
+char * Bmatch_NameAddPrefix( char *& pPrefix, int plength, char * pName )
+{
+    char * pReturn = new char[30];
+    int k = 0;
+    while(1){
+        *(pReturn + plength + k) = *(pName + k);
+        if( *(pName + k) == '\0') break;
+        ++k;
+    }
+    for(int i = 0; i < plength; ++i){
+        *(pReturn + i) = *(pPrefix + i);
+    }
+    return pReturn;
+}
+
 /**Function*************************************************************
 
   Synopsis    [Bmatch_SolveQbf]
@@ -405,6 +391,8 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
   SeeAlso     []
 
 ***********************************************************************/
+
+// NOTE: Unmodified yet
 
 void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose )
 {
