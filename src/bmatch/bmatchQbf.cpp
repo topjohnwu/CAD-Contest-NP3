@@ -34,6 +34,8 @@ ABC_NAMESPACE_IMPL_START
 ////////////////////////////////////////////////////////////////////////
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
+static int fConst0 = 0;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,7 +44,7 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 void        Bmatch_PrepareNtk1          ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf );          
 void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_CreatePOMUXesAndPO   ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
-void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & );
+void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & , int & = fConst0 );
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
 
@@ -186,9 +188,9 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
 void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf)
 {
     Abc_Obj_t * pPi, * pObj;
-    int i, level = 1;
+    int i, level = 1, fForPi = 1;
     vector< Abc_Obj_t * > Pi_Pool;
-    Pi_Pool.push_back( Abc_AigConst1( pNtk_Qbf ) );
+    // Pi_Pool.push_back( Abc_AigConst1( pNtk_Qbf ) );
     Abc_NtkForEachPi( pNtk1, pPi, i)
     {
         Pi_Pool.push_back( pPi->pCopy );
@@ -196,7 +198,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
     // Construct PI MUXes for Ntk2
     Abc_NtkForEachPi( pNtk2, pPi, i)
     {
-        Bmatch_Construct_MUXes( Pi_Pool, pPi, pNtk_Qbf, level );
+        Bmatch_Construct_MUXes( Pi_Pool, pPi, pNtk_Qbf, level, fForPi );
         level = 1;
     }
     // Connect Ntk2
@@ -291,7 +293,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 ***********************************************************************/
 
 
-void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2, Abc_Ntk_t *& pNtk_Qbf, int &level)
+void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2, Abc_Ntk_t *& pNtk_Qbf, int & level, int & fForPi)
 {
     vector< Abc_Obj_t * > new_Pi_Pool;
     Abc_Obj_t * pObj, * pObjA;
@@ -317,12 +319,22 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         if( !(Pi_Pool.size() % 2 == 0) ){
             new_Pi_Pool.push_back( Pi_Pool[ Pi_Pool.size() - 1 ] );
         }
-        Bmatch_Construct_MUXes( new_Pi_Pool, pObj2, pNtk_Qbf, level );
+        Bmatch_Construct_MUXes( new_Pi_Pool, pObj2, pNtk_Qbf, level, fForPi );
     }
     else{
-        pSuffix = new char[2];
-        sprintf( pSuffix, "%d", 0);
+        pObj = Pi_Pool[0];
+        if( fForPi == 1 ){
+            pSuffix = "|";
+            pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
+            pName = "x_";
+            pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
+            Abc_ObjAssignName( pObjA, pName, pSuffix );
+            delete pName;
+            
+            pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), Pi_Pool[0] );            
+        }
+        pSuffix = "0\0";
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
         pName = "x_";
@@ -330,7 +342,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
-        pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot( Pi_Pool[0] ), Pi_Pool[0] );
+        pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot( pObj ), pObj );
         pObj2->pCopy = pObj;
     }
 }
