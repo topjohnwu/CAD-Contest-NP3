@@ -48,6 +48,8 @@ void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *&
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
 
+void        Bmatch_SolveQbf             ( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose );
+
 #ifdef __cplusplus
 }
 #endif
@@ -76,13 +78,13 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     char * pName = "AIG_for_Qbf"; // the name comes from the user’s application
     pNtk_Qbf->pName = Extra_UtilStrsav( pName );
 
-    printf("= \n");
+    // printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
-    printf("== \n");
+    // printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
-    printf("=== \n");
+    // printf("=== \n");
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
-    printf("==== \n");
+    // printf("==== \n");
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
@@ -251,7 +253,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
     for( int j = 0; j < output_Pool.size(); ++j){
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
-        pName = "x_";
+        pName = "y_";
         pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(Abc_NtkPo(pNtk2, j)));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
@@ -432,7 +434,7 @@ void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose
     assert( Abc_NtkIsComb(pNtk) );
     assert( Abc_NtkPoNum(pNtk) == 1 );
     assert( nInputs > 0 && nInputs < Abc_NtkPiNum(pNtk) );
-//    assert( Abc_NtkPiNum(pNtk)-nPars < 32 );
+    // assert( Abc_NtkPiNum(pNtk)-nPars < 32 );
     nPars = Abc_NtkPiNum(pNtk) - nInputs;
 
     // initialize the synthesized network with 0000-combination
@@ -523,7 +525,7 @@ void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose
             Abc_NtkVectorPrintVars( pNtk, vPiValues, nPars );
             printf( "  " );
             ABC_PRT( "Syn", clkS );
-//            ABC_PRT( "Ver", clkV );
+            // ABC_PRT( "Ver", clkV );
         }
         if ( nIters+1 == nItersMax )
             break;

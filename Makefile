@@ -45,7 +45,7 @@ INCLUDES += -Isrc
 ARCHFLAGS ?= $(shell $(CC) arch_flags.c -o $(ARCHFLAGS_EXE) && $(ARCHFLAGS_EXE))
 ARCHFLAGS := $(ARCHFLAGS)
 
-OPTFLAGS  ?= -g -O
+OPTFLAGS  ?= -O3
 
 CFLAGS    += -Wall -Wno-unused-function -Wno-write-strings -Wno-sign-compare $(ARCHFLAGS)
 ifneq ($(findstring arm,$(shell uname -m)),)

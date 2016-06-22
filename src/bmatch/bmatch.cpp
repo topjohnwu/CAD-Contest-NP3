@@ -109,15 +109,16 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
         return 1;
 
-    Bmatch_Resync( pNtk1 );
-    Bmatch_Resync( pNtk2 );
+    // Bmatch_Resync( pNtk1 );
+    // Bmatch_Resync( pNtk2 );
 
     // Bmatch_PrintNtkStats( pNtk1 );
     // Bmatch_PrintNtkStats( pNtk2 );
-    Bmatch_PrintIO( pNtk1 );
-    Bmatch_PrintIO( pNtk2 );
+    // Bmatch_PrintIO( pNtk1 );
+    // Bmatch_PrintIO( pNtk2 );
 
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
+    Bmatch_Resync( pNtkQbf );
     // Bmatch_PrintNtkStats( pNtkQbf );
     Bmatch_PrintIO( pNtkQbf );
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );

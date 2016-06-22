@@ -10,9 +10,8 @@ Cir_QBF
 值是 1 表示選取！
 PI:
     forPI:
-x_<name>|43210
+x_<name>_|43210
 
-x 表示 exist
 <name> 是 Cir2 的 input
 
 0 號表示 是否 invert 值是 1 表示 invert
@@ -22,9 +21,8 @@ x 表示 exist
 
 
     forPO:
-x_<name>|43210
+y_<name>_|43210
 
-x 表示 exist
 <name> 是 Cir2 的 output
 
 0 號表示 是否 invert 值是 1 表示 invert
@@ -32,9 +30,9 @@ x 表示 exist
 | 號表示 是否選取 NULL 如果選了則 4 ~ 1 號無效
 
 
-y_a
-y_b
-y_c
-y 表示 forall
+z_a
+z_b
+z_c
+z 表示 forall
 a, b, c 是 Cir1 的 input
 
