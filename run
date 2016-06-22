@@ -1,16 +1,25 @@
 #!/bin/bash
 if [[ -z "$1" ]]; then
-	echo "Usage: ./run <test case>"
-	exit 1
-fi
-if [[ ! -f "./abc" ]]; then
-	echo "Binary \"abc\" is not created!"
-	echo "Call \"make\" to compile the project!"
-	exit 1
+    echo "Usage: ./run <test case>"
+    exit 1
 fi
 if [[ ! -d "./bmatch_bench/case$1" ]]; then
-	echo "This testcase do not exist!"
-	exit 1
+    echo "This testcase do not exist!"
+    exit 1
+fi
+
+echo "Recompiling abc..."
+
+if [[ ! -f "./abc" ]]; then
+    echo "Binary \"abc\" hasn't been created!"
+    echo "The first compilation will be time consuming"
+fi
+
+make -j4 1>/dev/null
+
+if [[ ! -f "./abc" ]]; then
+    echo "Binary compilation failed!"
+    exit 1
 fi
 
 ./abc -c "bmatch ./bmatch_bench/case$1/cir1.v ./bmatch_bench/case$1/cir2.v"
