@@ -161,7 +161,7 @@ void Bmatch_PrepareNtk1( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf )
         pObj->pCopy = pObjNew;
         // add name
 
-        pName = "y_";
+        pName = "z_";
         pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj));
         Abc_ObjAssignName( pObjNew, pName, "_cir1" );
         delete pName;
@@ -307,7 +307,12 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
+        if( fForPi == 1 ){
         pName = "x_";
+        }
+        else{
+            pName = "y_";
+        }
         pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
@@ -327,7 +332,12 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
             pSuffix = "_|\0";
             pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
+            if( fForPi == 1 ){
             pName = "x_";
+            }
+            else{
+                pName = "y_";
+            }
             pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
             Abc_ObjAssignName( pObjA, pName, pSuffix );
             delete pName;
@@ -337,7 +347,12 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         pSuffix = "_0\0";
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
+        if( fForPi == 1 ){
         pName = "x_";
+        }
+        else{
+            pName = "y_";
+        }
         pName = Bmatch_NameAddPrefix(pName, 2, Abc_ObjName(pObj2));
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
