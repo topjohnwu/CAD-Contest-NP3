@@ -88,7 +88,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     char ** pArgvNew;
     int nArgcNew;
     Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
-    Vec_Int_t * results;
+    Vec_Int_t * vPiValues;
 
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
@@ -129,13 +129,13 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
 
-    results = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
+    vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
 
-    Bmatch_SolveQbf( pNtkQbf, results, Abc_NtkPiNum( pNtk1 ), 50, 0 );
-    Abc_NtkVectorPrintPars( results, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
+    Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 50, 0 );
+    Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
     printf("\n");
-    Bmatch_Output( pNtk1, pNtk2, pNtkQbf, results->pArray );
-    Vec_IntFree( results );
+    Bmatch_Output( pNtk1, pNtkQbf, vPiValues->pArray );
+    Vec_IntFree( vPiValues );
     return 0;
 
 usage:

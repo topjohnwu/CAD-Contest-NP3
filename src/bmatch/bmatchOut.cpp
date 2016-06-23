@@ -39,7 +39,7 @@ ABC_NAMESPACE_IMPL_START
 extern "C" {
 #endif
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results );
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results );
 class Node;
 
 #ifdef __cplusplus
@@ -72,7 +72,7 @@ public:
 
 ***********************************************************************/
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results )
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results )
 {
     
     int i;
@@ -85,8 +85,8 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
     vector<Node>* outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
     vector<Node> constGroup;
 
-    cout << "Type\tName\tSpec\tMatch\t" << endl;
     // Parsing
+    cout << "Type\tName\tSpec\tMatch\t" << endl;
     Abc_NtkForEachPi( pNtkQbf, pObj, i )
     {
         string objStr = Abc_ObjName( pObj );
