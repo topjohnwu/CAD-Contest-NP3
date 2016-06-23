@@ -78,6 +78,10 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     char * pName = "AIG_for_Qbf"; // the name comes from the user’s application
     pNtk_Qbf->pName = Extra_UtilStrsav( pName );
 
+    // Just in case
+    Abc_NtkOrderObjsByName( pNtk1, 0 );
+    Abc_NtkOrderObjsByName( pNtk2, 0 );
+    
     // printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
     // printf("== \n");
@@ -86,9 +90,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     // printf("==== \n");
 
-    // Just in case
-    Abc_NtkOrderObjsByName( pNtk1, 0 );
-    Abc_NtkOrderObjsByName( pNtk2, 0 );
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
@@ -347,7 +348,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
             Abc_ObjAssignName( pObjA, pName, pSuffix );
             delete pName;
             
-            pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), Pi_Pool[0] );            
+            pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), Pi_Pool[0] );
         }
         pSuffix = "_0\0";
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );

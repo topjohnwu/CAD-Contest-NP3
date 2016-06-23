@@ -116,6 +116,10 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     // Bmatch_PrintNtkStats( pNtk1 );
     // Bmatch_PrintNtkStats( pNtk2 );
 
+    // Need placing in the beginning to get coherence!
+    Abc_NtkOrderObjsByName( pNtk1, 0 );
+    Abc_NtkOrderObjsByName( pNtk2, 0 );
+
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
     Bmatch_Resync( pNtkQbf );
 
