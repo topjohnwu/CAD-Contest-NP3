@@ -144,6 +144,9 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results )
     }
     if (f.is_open()) cout << "Create match.out success!" << endl;
     f.close();
+    
+    delete[] inGroup;
+    delete[] outGroup;
 }
 
 ////////////////////////////////////////////////////////////////////////
