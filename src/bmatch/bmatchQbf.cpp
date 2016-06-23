@@ -48,7 +48,7 @@ void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *&
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
 
-void        Bmatch_SolveQbf             ( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose );
+bool        Bmatch_SolveQbf             ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int nItersMax, int fVerbose );
 
 #ifdef __cplusplus
 }
@@ -86,6 +86,9 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
     // printf("==== \n");
 
+    // Just in case
+    Abc_NtkOrderObjsByName( pNtk1, 0 );
+    Abc_NtkOrderObjsByName( pNtk2, 0 );
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
     if ( !Abc_NtkCheck( pNtk_Qbf ) ) {
@@ -226,7 +229,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
     int i, level = 1;
-    char * pSuffix = new char[3]; pSuffix = "_|\0"; 
+    char * pSuffix = new char[3]; pSuffix = "_*\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
     char * pName;
@@ -331,7 +334,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     else{
         pObj = Pi_Pool[0];
         if( fForPi == 1 ){
-            pSuffix = "_|\0";
+            pSuffix = "_*\0";
             pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
             if( fForPi == 1 ){
@@ -421,12 +424,9 @@ char * Bmatch_NameAddPrefix( char *& pPrefix, int plength, char * pName )
 
 ***********************************************************************/
 
-// NOTE: Unmodified yet
-
-void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose )
+bool Bmatch_SolveQbf ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int nItersMax, int fVerbose )
 {
     Abc_Ntk_t * pNtkVer, * pNtkSyn, * pNtkSyn2, * pNtkTemp;
-    Vec_Int_t * vPiValues;
     abctime clkTotal = Abc_Clock(), clkS, clkV;
     int nIters, nPars, RetValue, fFound = 0;
 
@@ -436,9 +436,6 @@ void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose
     assert( nInputs > 0 && nInputs < Abc_NtkPiNum(pNtk) );
     // assert( Abc_NtkPiNum(pNtk)-nPars < 32 );
     nPars = Abc_NtkPiNum(pNtk) - nInputs;
-
-    // initialize the synthesized network with 0000-combination
-    vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtk) );
 
     // create random init value
     {
@@ -532,22 +529,24 @@ void Bmatch_SolveQbf( Abc_Ntk_t * pNtk, int nInputs, int nItersMax, int fVerbose
     }
     Abc_NtkDelete( pNtkSyn );
     // report the results
+    ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
     if ( fFound )
     {
-        int nZeros = Vec_IntCountZero( vPiValues );
-        printf( "Parameters: " );
-        Abc_NtkVectorPrintPars( vPiValues, nPars );
-        printf( "  Statistics: 0=%d 1=%d\n", nZeros, Vec_IntSize(vPiValues) - nZeros );
-        printf( "Solved after %d interations.  ", nIters );
+        // int nZeros = Vec_IntCountZero( vPiValues );
+        // printf( "Parameters: " );
+        // Abc_NtkVectorPrintPars( vPiValues, nPars );
+        // printf( "  Statistics: 0=%d 1=%d\n", nZeros, Vec_IntSize(vPiValues) - nZeros );
+        printf( "Solved after %d iterations.  ", nIters );
+        return true;
     }
     else if ( nIters == nItersMax )
-        printf( "Unsolved after %d interations.  ", nIters );
-    else if ( nIters == nItersMax )
-        printf( "Quit after %d interatios.  ", nItersMax );
+    {
+        printf( "Unsolved after %d iterations.  ", nIters );
+        printf( "Quit after %d iterations.  ", nItersMax );
+    }
     else
         printf( "Implementation does not exist.  " );
-    ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
-    Vec_IntFree( vPiValues );
+    return false;    
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -88,6 +88,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     char ** pArgvNew;
     int nArgcNew;
     Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
+    Vec_Int_t * results;
 
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
@@ -114,21 +115,27 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 
     // Bmatch_PrintNtkStats( pNtk1 );
     // Bmatch_PrintNtkStats( pNtk2 );
-    // Bmatch_PrintIO( pNtk1 );
-    // Bmatch_PrintIO( pNtk2 );
 
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
     Bmatch_Resync( pNtkQbf );
+
     // Bmatch_PrintNtkStats( pNtkQbf );
+    Bmatch_PrintIO( pNtk1 );
+    printf("\n");
+    Bmatch_PrintIO( pNtk2 );
+    printf("\n");
     Bmatch_PrintIO( pNtkQbf );
+    printf("\n");
+
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
-    Bmatch_SolveQbf( pNtkQbf, Abc_NtkPiNum( pNtk1 ), 20, 0 );
 
-    // TODO:
-    // Get QBF results
-    // Parse QBF
-    // Output to file
+    results = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
 
+    Bmatch_SolveQbf( pNtkQbf, results, Abc_NtkPiNum( pNtk1 ), 50, 0 );
+    Abc_NtkVectorPrintPars( results, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
+    printf("\n");
+    Bmatch_Output( pNtk1, pNtk2, pNtkQbf, results->pArray );
+    Vec_IntFree( results );
     return 0;
 
 usage:

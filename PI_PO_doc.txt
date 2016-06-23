@@ -10,24 +10,24 @@ Cir_QBF
 值是 1 表示選取！
 PI:
     forPI:
-x_<name>_|43210
+x_<name>_*43210
 
 <name> 是 Cir2 的 input
 
 0 號表示 是否 invert 值是 1 表示 invert
 4 ~ 1  號表示選取 Cir1 PI list 中第 k 個 PI
-| 號表示 是否選取 CONST0 如果選了則 4 ~ 1 號無效
+* 號表示 是否選取 CONST0 如果選了則 4 ~ 1 號無效
 
 
 
     forPO:
-y_<name>_|43210
+y_<name>_*43210
 
 <name> 是 Cir2 的 output
 
 0 號表示 是否 invert 值是 1 表示 invert
 4 ~ 1  號表示選取 Cir1 PO list 中第 k 個 PO
-| 號表示 是否選取 NULL 如果選了則 4 ~ 1 號無效
+* 號表示 是否選取 NULL 如果選了則 4 ~ 1 號無效
 
 
 z_a
