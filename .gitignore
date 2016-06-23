@@ -60,6 +60,7 @@ src/aig/ddb/
 *.opt
 *.plg
 *.ps
+*.out
 
 *.zip
 

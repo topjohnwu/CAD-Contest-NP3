@@ -74,7 +74,7 @@ public:
 
 void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results )
 {
-    cout << "Type\tName\tSpec\tMatch\t" << endl;
+    
     int i;
     string pre = "";
     unsigned num = 0, bit = 0;
@@ -85,6 +85,8 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
     vector<Node>* outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
     vector<Node> constGroup;
 
+    cout << "Type\tName\tSpec\tMatch\t" << endl;
+    // Parsing
     Abc_NtkForEachPi( pNtkQbf, pObj, i )
     {
         string objStr = Abc_ObjName( pObj );
@@ -109,6 +111,39 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
             --i;
         }
     }
+
+    // Output to file 
+    ofstream f("match.out");
+    Abc_NtkForEachPo( pNtk1, pObj, i )
+    {
+        if(outGroup[i].size())
+        {
+            f << "OUTGROUP" << endl;
+            f << "1 + " << Abc_ObjName( pObj ) << endl;
+            for (int j = 0; j < outGroup[i].size(); ++j)
+                f << "2 " << (outGroup[i][j].inv ? "- " : "+ ") <<  outGroup[i][j].name << endl;
+            f << "END" << endl;
+        }
+    }
+    Abc_NtkForEachPi( pNtk1, pObj, i )
+    {
+        if(inGroup[i].size())
+        {
+            f << "INGROUP" << endl;
+            f << "1 + " << Abc_ObjName( pObj ) << endl;
+            for (int j = 0; j < inGroup[i].size(); ++j)
+                f << "2 " << (inGroup[i][j].inv ? "- " : "+ ") <<  inGroup[i][j].name << endl;
+            f << "END" << endl;
+        }
+    }
+    if(constGroup.size())
+    {
+        f << "CONST0GROUP" << endl;
+        for (int j = 0; j < constGroup.size(); ++j)
+            f << "2 " << (constGroup[j].inv ? "- " : "+ ") <<  constGroup[j].name << endl;
+        f << "END" << endl;
+    }
+    f.close();
 }
 
 ////////////////////////////////////////////////////////////////////////
