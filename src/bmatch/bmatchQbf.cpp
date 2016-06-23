@@ -224,7 +224,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
     int i, level = 1;
-    char * pSuffix = new char[3]; pSuffix = "|\0"; 
+    char * pSuffix = new char[3]; pSuffix = "_|\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
     char * pName;
@@ -301,8 +301,8 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
 
     assert( Pi_Pool.size() >= 1);
     if( Pi_Pool.size() >= 2){
-        pSuffix = new char[6];
-        sprintf( pSuffix, "%d", level);
+        pSuffix = new char[10];
+        sprintf( pSuffix, "_%d", level);
         ++level;
 
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
@@ -324,7 +324,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
     else{
         pObj = Pi_Pool[0];
         if( fForPi == 1 ){
-            pSuffix = "|";
+            pSuffix = "_|\0";
             pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
             pName = "x_";
@@ -334,7 +334,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
             
             pObj = Abc_AigMux( (Abc_Aig_t * )pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), Pi_Pool[0] );            
         }
-        pSuffix = "0\0";
+        pSuffix = "_0\0";
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
         pName = "x_";
