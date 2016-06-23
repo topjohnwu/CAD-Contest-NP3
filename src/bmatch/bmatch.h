@@ -49,12 +49,12 @@
 extern "C" {
 #endif
 
-extern void Bmatch_Resync				( Abc_Ntk_t * &pNtk );
-extern void Bmatch_PrintNtkStats		( Abc_Ntk_t * pNtk );
-extern void Bmatch_PrintIO				( Abc_Ntk_t * pNtk );
-extern Abc_Ntk_t * Bmatch_PrepareQbfNtk	( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
+extern void Bmatch_Resync               ( Abc_Ntk_t * &pNtk );
+extern void Bmatch_PrintNtkStats        ( Abc_Ntk_t * pNtk );
+extern void Bmatch_PrintIO              ( Abc_Ntk_t * pNtk );
+extern Abc_Ntk_t * Bmatch_PrepareQbfNtk ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
 extern bool        Bmatch_SolveQbf      ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int nItersMax, int fVerbose );
-extern void Bmatch_Output				( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results );
+extern void Bmatch_Output               ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results );
 
 #ifdef __cplusplus
 }

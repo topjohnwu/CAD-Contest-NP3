@@ -22,7 +22,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <sstream>
 #include <fstream>
 using namespace std;
 
@@ -143,6 +142,7 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results )
             f << "2 " << (constGroup[j].inv ? "- " : "+ ") <<  constGroup[j].name << endl;
         f << "END" << endl;
     }
+    if (f.is_open()) cout << "Create match.out success!" << endl;
     f.close();
 }
 
