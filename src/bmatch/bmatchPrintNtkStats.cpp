@@ -88,6 +88,7 @@ void Bmatch_PrintIO( Abc_Ntk_t * pNtk )
         printf("PO %15s : ", Abc_ObjName( pObj) );
         Abc_ObjPrint( stdout, pObj );
     }
+    printf("Total           PI : %7d   PO : %7d \n", Abc_NtkPiNum( pNtk ), Abc_NtkPoNum( pNtk ) );
 }
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

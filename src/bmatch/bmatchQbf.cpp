@@ -78,10 +78,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     char * pName = "AIG_for_Qbf"; // the name comes from the user’s application
     pNtk_Qbf->pName = Extra_UtilStrsav( pName );
 
-    // Just in case
-    Abc_NtkOrderObjsByName( pNtk1, 0 );
-    Abc_NtkOrderObjsByName( pNtk2, 0 );
-    
     // printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
     // printf("== \n");
@@ -229,7 +225,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
-    int i, level = 1;
+    int i, level = 1, ILP_constraint = Abc_NtkPiNum( pNtk1 ) - (Abc_NtkPiNum( pNtk1 ) * 3 / 4);
     char * pSuffix = new char[3]; pSuffix = "_*\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
@@ -274,7 +270,7 @@ void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t 
         }
     }
 
-    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, 1);
+    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, ILP_constraint);
 
     pObj = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjNot(pILP), Abc_ObjNot(pObj) );
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
