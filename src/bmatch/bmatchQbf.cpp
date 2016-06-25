@@ -43,7 +43,7 @@ extern "C" {
 Abc_Ntk_t * Bmatch_PrepareQbfNtk        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
 void        Bmatch_PrepareNtk1          ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf );          
 void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
-void        Bmatch_CreatePOMUXesAndPO   ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
+void        Bmatch_CreatePOMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & , int & = fConst0 );
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
@@ -78,12 +78,14 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     char * pName = "AIG_for_Qbf"; // the name comes from the user’s application
     pNtk_Qbf->pName = Extra_UtilStrsav( pName );
 
+    Abc_NtkOrderObjsByName( pNtk1, 0 );
+    Abc_NtkOrderObjsByName( pNtk2, 0 );
     // printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
     // printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
     // printf("=== \n");
-    Bmatch_CreatePOMUXesAndPO( pNtk1, pNtk2, pNtk_Qbf );
+    Bmatch_CreatePOMUXes( pNtk1, pNtk2, pNtk_Qbf );
     // printf("==== \n");
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
@@ -192,11 +194,10 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
     Abc_Obj_t * pPi, * pObj;
     int i, level = 1, fForPi = 1;
     vector< Abc_Obj_t * > Pi_Pool;
-    // Pi_Pool.push_back( Abc_AigConst1( pNtk_Qbf ) );
+
     Abc_NtkForEachPi( pNtk1, pPi, i)
-    {
         Pi_Pool.push_back( pPi->pCopy );
-    }
+
     // Construct PI MUXes for Ntk2
     Abc_NtkForEachPi( pNtk2, pPi, i)
     {
@@ -205,6 +206,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
     }
     // Connect Ntk2
     Abc_AigConst1(pNtk2)->pCopy = Abc_AigConst1(pNtk_Qbf);
+
     Abc_AigForEachAnd( pNtk2, pObj, i )
         pObj->pCopy = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjChild0Copy(pObj), Abc_ObjChild1Copy(pObj) );
 }
@@ -222,7 +224,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 ***********************************************************************/
 
 
-void Bmatch_CreatePOMUXesAndPO( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
+void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
     int i, level = 1, ILP_constraint = Abc_NtkPiNum( pNtk1 ) - (Abc_NtkPiNum( pNtk1 ) * 3 / 4);

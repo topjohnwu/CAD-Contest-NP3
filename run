@@ -22,4 +22,4 @@ if [[ ! -f "./abc" ]]; then
     exit 1
 fi
 
-./abc -c "bmatch ./bmatch_bench/case$1/cir1.v ./bmatch_bench/case$1/cir2.v"
+./abc -c "bmatch $2 ./bmatch_bench/case$1/cir1.v ./bmatch_bench/case$1/cir2.v"

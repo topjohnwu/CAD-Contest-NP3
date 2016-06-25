@@ -89,15 +89,19 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     int nArgcNew;
     Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
     Vec_Int_t * vPiValues;
+    int fVerification = 0;
 
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "vh" ) ) != EOF )
     {
-       switch ( c )
-       {
-          default:
-             goto usage;
-       }
+        switch ( c )
+        {
+        case 'v':
+            fVerification ^= 1;
+            break;  
+        default:
+            goto usage;
+        }
     }
 
     pArgvNew = argv + globalUtilOptind;
@@ -110,20 +114,10 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
         return 1;
 
-    // Bmatch_Resync( pNtk1 );
-    // Bmatch_Resync( pNtk2 );
-
-    // Bmatch_PrintNtkStats( pNtk1 );
-    // Bmatch_PrintNtkStats( pNtk2 );
-
     // Need placing in the beginning to get coherence!
-    Abc_NtkOrderObjsByName( pNtk1, 0 );
-    Abc_NtkOrderObjsByName( pNtk2, 0 );
-
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
     Bmatch_Resync( pNtkQbf );
 
-    // Bmatch_PrintNtkStats( pNtkQbf );
     printf("Cir 1:\n");
     Bmatch_PrintIO( pNtk1 );
     printf("\nCir 2:\n");
@@ -132,6 +126,9 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     Bmatch_PrintIO( pNtkQbf );
     printf("\n");
 
+    if( fVerification ){
+        printf("Do verification! \n");
+    }
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
 
     vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
