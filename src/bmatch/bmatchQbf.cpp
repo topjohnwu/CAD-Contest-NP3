@@ -227,7 +227,7 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
     Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
-    int i, level = 1, ILP_constraint = Abc_NtkPiNum( pNtk1 ) - (Abc_NtkPiNum( pNtk1 ) * 3 / 4);
+    int i, level = 1, ILP_constraint = Abc_NtkPoNum( pNtk1 ) - (Abc_NtkPoNum( pNtk1 ) * 3 / 4);
     char * pSuffix = new char[3]; pSuffix = "_*\0"; 
     vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
 
