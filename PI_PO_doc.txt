@@ -21,13 +21,16 @@ x_<name>_*43210
 
 
     forPO:
-// y_<name>_*43210
+y_<name>_*43210
 
 // <name> 是 Cir2 的 output
+<name> 是 Cir1 的 output
 
-// 0 號表示 是否 invert 值是 1 表示 invert
+0 號表示 是否 invert 值是 1 表示 invert
 // 4 ~ 1  號表示選取 Cir1 PO list 中第 k 個 PO
-// * 號表示 是否選取 NULL 如果選了則 4 ~ 1 號無效
+4 ~ 1  號表示選取 Cir2 PO list 中第 k 個 PO
+
+* 號表示 是否選取 NULL 如果選了則 4 ~ 1 號無效
 
 
 z_a

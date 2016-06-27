@@ -113,7 +113,7 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
 
     // Output to file 
     ofstream f("match.out");
-    Abc_NtkForEachPo( pNtk2, pObj, i )
+    Abc_NtkForEachPo( pNtk1, pObj, i )
     {
         if(outGroup[i].size())
         {
