@@ -115,7 +115,9 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
         return 1;
 
     // Need placing in the beginning to get coherence!
+    printf("Before Pre! \n");
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
+    printf("After \n");
     Bmatch_Resync( pNtkQbf );
 
     printf("Cir 1:\n");

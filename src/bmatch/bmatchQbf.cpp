@@ -80,13 +80,13 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 
     Abc_NtkOrderObjsByName( pNtk1, 0 );
     Abc_NtkOrderObjsByName( pNtk2, 0 );
-    // printf("= \n");
+    printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
-    // printf("== \n");
+    printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
-    // printf("=== \n");
+    printf("=== \n");
     Bmatch_CreatePOMUXes( pNtk1, pNtk2, pNtk_Qbf );
-    // printf("==== \n");
+    printf("==== \n");
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
@@ -237,6 +237,7 @@ void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNt
     {
         Po_Pool.push_back( Abc_ObjChild0Copy(pPo) );  
     }
+
 
     // Construct PO MUXes for Ntk2
     Abc_NtkForEachPo( pNtk2, pPo, i)
