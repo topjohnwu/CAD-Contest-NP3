@@ -20,6 +20,8 @@
 
 #include "bmatch.h"
 #include "base/main/mainInt.h"
+#include <vector>
+using namespace std;
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -90,6 +92,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
     Vec_Int_t * vPiValues;
     int fVerification = 0;
+    vector<Node> * inGroup = 0 , * outGroup = 0, *constGroup = 0;
 
     Extra_UtilGetoptReset();
     while ( ( c = Extra_UtilGetopt( argc, argv, "vh" ) ) != EOF )
@@ -137,13 +140,21 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 
     if( Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 50, 0 ) )
     {
+        inGroup = new vector<Node>[ Abc_NtkPiNum( pNtk1 ) ];
+        outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
+        constGroup = new vector<Node>;
+
         printf("\nQBF Output: ");
         Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
         printf("\n");
-        Bmatch_Output( pNtk1, pNtk2, pNtkQbf, vPiValues->pArray );
+        Bmatch_Parse( pNtk1, pNtk2, pNtkQbf, vPiValues->pArray, inGroup, outGroup, constGroup, true );
+        Bmatch_Output( pNtk1, pNtk2, inGroup, outGroup, constGroup, "match.out");
     }
 
     Vec_IntFree( vPiValues );
+    if(inGroup) delete[] inGroup;
+    if(outGroup) delete[] outGroup;
+    if(constGroup) delete constGroup;
     return 0;
 
 usage:

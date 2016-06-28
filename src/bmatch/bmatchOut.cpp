@@ -38,22 +38,12 @@ ABC_NAMESPACE_IMPL_START
 extern "C" {
 #endif
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results );
-class Node;
+void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, bool outMuxOn2 );
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const char* filename );
 
 #ifdef __cplusplus
 }
 #endif
-////////////////////////////////////////////////////////////////////////
-///                       CLASS DEFINITIONS                          ///
-////////////////////////////////////////////////////////////////////////
-class Node
-{
-public:
-    string name;
-    bool inv;
-    Node( string s, bool b) : name(s), inv(b) {};
-};
 
 ////////////////////////////////////////////////////////////////////////
 ///                     FUNCTION DEFINITIONS                         ///
@@ -71,48 +61,87 @@ public:
 
 ***********************************************************************/
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results )
+void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, bool outMuxOn2 )
 {
-    
-    int i;
-    string pre = "";
-    unsigned num = 0, bit = 0;
+    string previous = "";
+    unsigned num = 0, bit = 0, cur = 0;
     bool x = true;
 
+    // For loops
+    int i;
     Abc_Obj_t * pObj;
-    vector<Node>* inGroup = new vector<Node>[ Abc_NtkPiNum( pNtk1 ) ];
-    vector<Node>* outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
-    vector<Node> constGroup;
 
-    // Parsing
-    cout << "Type\tName\tSpec\tMatch\t" << endl;
+    cout << "Type\tName\t\tResult\t\t"
+    // << "Spec\tMatch\tc1_id\tc2_id"
+    << endl;
+
     Abc_NtkForEachPi( pNtkQbf, pObj, i )
     {
         string objStr = Abc_ObjName( pObj );
         string objName = objStr.substr( 2, objStr.find_last_of('_') - 2 );
         bool b = results[i];
-        if( pre == "" ) pre = objName;
-        if( pre == objName )
+        if( previous == "" ) previous = objName;
+        if( previous == objName )
             num += ( b << bit++ );
         else
         {
-            if(x) {
-                if(num & 1) constGroup.push_back( Node(pre, num & 2) );
-                else inGroup[ (num >> 2) ].push_back( Node(pre, num & 2) );
+            unsigned id;
+            if( x ) {
+                id = ((num >> 2) >= Abc_NtkPiNum( pNtk1 )) ? (Abc_NtkPiNum( pNtk1 ) - 1) : (num >> 2);
+                if(num & 1) (*constGroup).push_back( Node(cur++, num & 2) );
+                else inGroup[ id ].push_back( Node(cur++, num & 2) );
             }
-            else
-                if( !(num & 1) ) outGroup[ (num >> 2) ].push_back( Node(pre, num & 2) );
-            cout << (x?"in\t":"out\t") << pre + "\t" << ((num & 1)?(x?"CONST\t":"NULL\t"): "\t") << ((num & 2)?"!":"") << (num >> 2) << endl;
-            pre = "";
+            else {
+                id = ((num >> 2) >= Abc_NtkPoNum( pNtk1 )) ? (Abc_NtkPiNum( pNtk1 ) - 1) : (num >> 2);
+                if( outMuxOn2 ) {
+                    if( !(num & 1) ) outGroup[ cur ].push_back( Node(id, num & 2) );
+                    ++cur;
+                }
+                else if( !(num & 1) ) outGroup[ id ].push_back( Node(cur++, num & 2) );
+            }
+
+            // Debug message
+            cout 
+            << (x?"PI\t":"PO\t")
+            << (x||!outMuxOn2?"Cir 2:\t":"Cir 1:\t")
+            << previous + "\t" 
+            << (x||!outMuxOn2?"Cir 1:\t":"Cir 2:\t") << ((num & 2)?"!":"") << ((num & 1)?(x?"CONST0\t":"NULL\t"): Abc_ObjName(x?(Abc_NtkPi(pNtk1,id)):(Abc_NtkPo(outMuxOn2?pNtk2:pNtk1,id))))
+            // << ((num & 1)?(x?"CONST\t":"NULL\t"): "\t") 
+            // << ((num & 2)?"!":"") << id << "\t" 
+            // << ((x||!outMuxOn2)?id:(cur-1)) << "\t" 
+            // << ((!x&&outMuxOn2)?id:(cur-1)) << "\t"
+            << endl;
+
+            previous = "";
             num = bit = 0;
-            if (objStr[0] == 'y' ) x = false;
+            if ( x && objStr[0] == 'y' ) { x = false; cur = 0; }
             if (objStr[0] == 'z' ) break;
             --i;
         }
     }
+}
 
-    // Output to file 
-    ofstream f("match.out");
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const char* filename )
+{    
+    // For loops
+    int i;
+    Abc_Obj_t * pObj;
+
+    ofstream f(filename);
+    // ostream & f = cout; // For debugging 
+
     Abc_NtkForEachPo( pNtk1, pObj, i )
     {
         if(outGroup[i].size())
@@ -120,10 +149,11 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
             f << "OUTGROUP" << endl;
             f << "1 + " << Abc_ObjName( pObj ) << endl;
             for (int j = 0; j < outGroup[i].size(); ++j)
-                f << "2 " << (outGroup[i][j].inv ? "- " : "+ ") <<  outGroup[i][j].name << endl;
+                f << "2 " << (outGroup[i][j].inv ? "- " : "+ ") <<  Abc_ObjName( Abc_NtkPo(pNtk2, outGroup[i][j].id) ) << endl;
             f << "END" << endl;
         }
     }
+
     Abc_NtkForEachPi( pNtk1, pObj, i )
     {
         if(inGroup[i].size())
@@ -131,22 +161,21 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, i
             f << "INGROUP" << endl;
             f << "1 + " << Abc_ObjName( pObj ) << endl;
             for (int j = 0; j < inGroup[i].size(); ++j)
-                f << "2 " << (inGroup[i][j].inv ? "- " : "+ ") <<  inGroup[i][j].name << endl;
+                f << "2 " << (inGroup[i][j].inv ? "- " : "+ ") <<  Abc_ObjName( Abc_NtkPi(pNtk2, inGroup[i][j].id) ) << endl;
             f << "END" << endl;
         }
     }
-    if(constGroup.size())
+
+    if((*constGroup).size())
     {
         f << "CONST0GROUP" << endl;
-        for (int j = 0; j < constGroup.size(); ++j)
-            f << "2 " << (constGroup[j].inv ? "- " : "+ ") <<  constGroup[j].name << endl;
+        for (int j = 0; j < (*constGroup).size(); ++j)
+            f << "2 " << ((*constGroup)[j].inv ? "- " : "+ ") << Abc_ObjName( Abc_NtkPi(pNtk2, (*constGroup)[j].id) ) << endl;
         f << "END" << endl;
     }
-    if (f.is_open()) cout << "Create match.out success!" << endl;
+
+    if (f.is_open()) cout << "Create \"" << filename << "\" success!" << endl;
     f.close();
-    
-    delete[] inGroup;
-    delete[] outGroup;
 }
 
 ////////////////////////////////////////////////////////////////////////
