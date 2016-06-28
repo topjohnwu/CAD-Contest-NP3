@@ -35,6 +35,7 @@ ABC_NAMESPACE_IMPL_START
 ///                        DECLARATIONS                              ///
 ////////////////////////////////////////////////////////////////////////
 static int fConst0 = 0;
+static vector< Abc_Obj_t * > Output_Pool, Control_Pool;
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,7 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 void        Bmatch_PrepareNtk1          ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf );          
 void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_CreatePOMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
+void        Bmatch_PrepareFinal         ( Abc_Ntk_t * pNtk_Qbf, int ILP_constraint );
 void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & , int & = fConst0 );
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
 char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
@@ -85,8 +87,9 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
     printf("=== \n");
-    Bmatch_CreatePOMUXes( pNtk1, pNtk2, pNtk_Qbf );
+    Bmatch_CreatePOMUXes( pNtk2, pNtk1, pNtk_Qbf );
     printf("==== \n");
+    Bmatch_PrepareFinal( pNtk_Qbf, 2/*Abc_NtkPoNum( pNtk1 ) - (Abc_NtkPoNum( pNtk1 ) * 3 / 4)*/ );
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 
@@ -96,42 +99,6 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
         return NULL; 
     }
     return pNtk_Qbf;
-    /* 
-    // Construct Testing Circuit.
-
-    Abc_Ntk_t * pTest;
-    pTest = Abc_NtkAlloc( ABC_NTK_STRASH, ABC_FUNC_AIG, 1 );
-
-    char * pName = "Test"; // the name comes from the user’s application
-    pTest->pName = Extra_UtilStrsav( pName );
-
-    int nPrimaryInputs = 3; // this number comes from the user’s application
-    Abc_Obj_t * pObj, * pObjA, * pObjB, * pObjC, * pPO;
-    int i; 
-
-    for ( i = 0; i < nPrimaryInputs; i++ )
-        pObj = Abc_NtkCreatePi( pTest ); 
-
-    pObjA = Abc_NtkPi( pTest, 0 );
-    pObjB = Abc_NtkPi( pTest, 1 );
-    pObjC = Abc_NtkPi( pTest, 2 );
-    pPO   = Abc_NtkCreatePo( pTest );
-
-    pObj = Abc_AigMux( (Abc_Aig_t * )pTest->pManFunc, pObjA, pObjB, pObjC );
-    Abc_ObjAddFanin( pPO, pObj );
-
-    Abc_AigCleanup( (Abc_Aig_t *)pTest->pManFunc );
-    Abc_NtkAddDummyPiNames( pTest );
-    Abc_NtkAddDummyPoNames( pTest ); 
-    Abc_NtkAddDummyBoxNames( pTest );
-
-    if ( !Abc_NtkCheck( pTest ) ) {
-        printf( "The AIG construction has failed.\n" );     
-        Abc_NtkDelete( pTest );     
-        return NULL; 
-    }
-    return pTest;
-    */
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -226,18 +193,18 @@ void Bmatch_CreatePIMUXes ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pN
 
 void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf )
 {
-    Abc_Obj_t * pPo, * pObj, * pObjA, * pILP, * pOutput;
-    int i, level = 1, ILP_constraint = Abc_NtkPoNum( pNtk1 ) - (Abc_NtkPoNum( pNtk1 ) * 3 / 4);
+    Abc_Obj_t * pPo, * pObj, * pObjA;
+    int i, level = 1;
     char * pSuffix = new char[3]; pSuffix = "_*\0"; 
-    vector< Abc_Obj_t * > Po_Pool, output_Pool, control_Pool;
-
+    vector< Abc_Obj_t * > Po_Pool;
     char * pName;
+
+    assert( Output_Pool.size() == 0 && Control_Pool.size() == 0 );
 
     Abc_NtkForEachPo( pNtk1, pPo, i)
     {
         Po_Pool.push_back( Abc_ObjChild0Copy(pPo) );  
     }
-
 
     // Construct PO MUXes for Ntk2
     Abc_NtkForEachPo( pNtk2, pPo, i)
@@ -245,15 +212,15 @@ void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNt
         Bmatch_Construct_MUXes( Po_Pool, pPo, pNtk_Qbf, level );
         level = 1;
     }
-
+    Po_Pool.clear();
+    
     Abc_NtkForEachPo( pNtk2, pPo, i)
     {
         pObj = Abc_AigXor( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pPo->pCopy, Abc_ObjChild0Copy(pPo) );
-        output_Pool.push_back( pObj );
+        Po_Pool.push_back( pObj );
     }
 
-    Po_Pool.clear();
-    for( int j = 0; j < output_Pool.size(); ++j){
+    for( int j = 0; j < Po_Pool.size(); ++j){
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
         pName = "y_";
@@ -261,23 +228,32 @@ void Bmatch_CreatePOMUXes( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNt
         Abc_ObjAssignName( pObjA, pName, pSuffix );
         delete pName;
 
-        pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), output_Pool[j] );
-        Po_Pool.push_back( pObj );
-        control_Pool.push_back( pObjA );
+        pObj = Abc_AigMux( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObjA, Abc_ObjNot(Abc_AigConst1(pNtk_Qbf)), Po_Pool[j] );
+        Output_Pool.push_back( pObj );
+        Control_Pool.push_back( pObjA );
     }
+}
 
-    pObj = Po_Pool[0];
-    if( Po_Pool.size() > 1){
-        for( int j = 0; j < Po_Pool.size() - 1; ++j){
-            pObj = Abc_AigOr( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObj, Po_Pool[j + 1]);
+void Bmatch_PrepareFinal( Abc_Ntk_t * pNtk_Qbf, int ILP_constraint )
+{
+    Abc_Obj_t * pObj, * pILP, * pOutput;
+
+    assert( Output_Pool.size() >= 1 && Control_Pool.size() >= 1);
+    pObj = Output_Pool[0];
+    if( Output_Pool.size() > 1){
+        for( int j = 0; j < Output_Pool.size() - 1; ++j){
+            pObj = Abc_AigOr( (Abc_Aig_t *)pNtk_Qbf->pManFunc, pObj, Output_Pool[j + 1]);
         }
     }
 
-    pILP = Bmatch_Construct_ILP( control_Pool, pNtk_Qbf, ILP_constraint);
+    pILP = Bmatch_Construct_ILP( Control_Pool, pNtk_Qbf, ILP_constraint);
 
     pObj = Abc_AigAnd( (Abc_Aig_t *)pNtk_Qbf->pManFunc, Abc_ObjNot(pILP), Abc_ObjNot(pObj) );
     pOutput = Abc_NtkCreatePo( pNtk_Qbf );
     Abc_ObjAddFanin( pOutput, pObj );
+
+    Output_Pool.clear();
+    Control_Pool.clear();
 
     Abc_AigCleanup( (Abc_Aig_t *)pNtk_Qbf->pManFunc );
     // Abc_NtkAddDummyPiNames( pNtk_Qbf );
@@ -338,7 +314,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
             pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
             if( fForPi == 1 ){
-            pName = "x_";
+                pName = "x_";
             }
             else{
                 pName = "y_";
@@ -353,7 +329,7 @@ void Bmatch_Construct_MUXes( vector< Abc_Obj_t * > & Pi_Pool, Abc_Obj_t *& pObj2
         pObjA = Abc_NtkCreatePi( pNtk_Qbf );
 
         if( fForPi == 1 ){
-        pName = "x_";
+            pName = "x_";
         }
         else{
             pName = "y_";

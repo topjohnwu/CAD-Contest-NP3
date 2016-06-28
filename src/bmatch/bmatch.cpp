@@ -140,7 +140,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
         printf("\nQBF Output: ");
         Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
         printf("\n");
-        Bmatch_Output( pNtk1, pNtkQbf, vPiValues->pArray );
+        Bmatch_Output( pNtk1, pNtk2, pNtkQbf, vPiValues->pArray );
     }
 
     Vec_IntFree( vPiValues );

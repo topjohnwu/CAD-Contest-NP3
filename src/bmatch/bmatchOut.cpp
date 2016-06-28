@@ -38,7 +38,7 @@ ABC_NAMESPACE_IMPL_START
 extern "C" {
 #endif
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results );
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results );
 class Node;
 
 #ifdef __cplusplus
@@ -71,7 +71,7 @@ public:
 
 ***********************************************************************/
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results )
+void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results )
 {
     
     int i;
@@ -113,7 +113,7 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtkQbf, int * results )
 
     // Output to file 
     ofstream f("match.out");
-    Abc_NtkForEachPo( pNtk1, pObj, i )
+    Abc_NtkForEachPo( pNtk2, pObj, i )
     {
         if(outGroup[i].size())
         {
