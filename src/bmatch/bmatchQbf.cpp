@@ -41,7 +41,7 @@ static vector< Abc_Obj_t * > Output_Pool, Control_Pool;
 extern "C" {
 #endif
 
-Abc_Ntk_t * Bmatch_PrepareQbfNtk        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
+Abc_Ntk_t * Bmatch_PrepareQbfNtk        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, const int & ILP_constraint, const bool & muxOnCir2 );
 void        Bmatch_PrepareNtk1          ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk_Qbf );          
 void        Bmatch_CreatePIMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
 void        Bmatch_CreatePOMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk_Qbf );
@@ -72,10 +72,11 @@ bool        Bmatch_SolveQbf             ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValue
 
 ***********************************************************************/
 
-Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
+Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, const int & ILP_constraint, const bool & muxOnCir2 )
 {
     Abc_Ntk_t * pNtk_Qbf;
     pNtk_Qbf = Abc_NtkAlloc( ABC_NTK_STRASH, ABC_FUNC_AIG, 1 );
+    int forILP;
 
     char * pName = "AIG_for_Qbf"; // the name comes from the user’s application
     pNtk_Qbf->pName = Extra_UtilStrsav( pName );
@@ -87,9 +88,16 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
     printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
     printf("=== \n");
-    Bmatch_CreatePOMUXes( pNtk2, pNtk1, pNtk_Qbf );
+    if( muxOnCir2 ){
+        Bmatch_CreatePOMUXes( pNtk2, pNtk1, pNtk_Qbf );
+        forILP = Abc_NtkPoNum( pNtk1 ) - ILP_constraint;
+    }
+    else{
+        Bmatch_CreatePOMUXes( pNtk1, pNtk2, pNtk_Qbf );
+        forILP = Abc_NtkPoNum( pNtk2 ) - ILP_constraint;
+    }
     printf("==== \n");
-    Bmatch_PrepareFinal( pNtk_Qbf, 2/*Abc_NtkPoNum( pNtk1 ) - (Abc_NtkPoNum( pNtk1 ) * 3 / 4)*/ );
+    Bmatch_PrepareFinal( pNtk_Qbf, forILP );
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );
 

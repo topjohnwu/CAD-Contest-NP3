@@ -86,9 +86,10 @@ void Bmatch_End( Abc_Frame_t * pAbc )
 
 int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 {
-    int c, fDelete1 = 0, fDelete2 = 0;
+    int c, fDelete1 = 0, fDelete2 = 0, ILP_constraint = 1;
+    bool muxOnCir2 = true;
     char ** pArgvNew;
-    int nArgcNew;
+    int nArgcNew, score = 0, maxScore = 0;
     Abc_Ntk_t * pNtk1, * pNtk2, * pNtkQbf;
     Vec_Int_t * vPiValues;
     int fVerification = 0;
@@ -118,9 +119,7 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
         return 1;
 
     // Need placing in the beginning to get coherence!
-    printf("Before Pre! \n");
-    pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2 );
-    printf("After \n");
+    pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2, ILP_constraint, muxOnCir2 );
     Bmatch_Resync( pNtkQbf );
 
     printf("Cir 1:\n");
@@ -148,7 +147,12 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
         Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
         printf("\n");
         Bmatch_Parse( pNtk1, pNtk2, pNtkQbf, vPiValues->pArray, inGroup, outGroup, constGroup, true );
-        Bmatch_Output( pNtk1, pNtk2, inGroup, outGroup, constGroup, "match.out");
+        score = Bmatch_Output( pNtk1, pNtk2, inGroup, outGroup, constGroup, score, "match.out");
+        if( score > maxScore ) maxScore = score;
+    }
+
+    if( fVerification ){
+        printf("score : %6d \n", score);
     }
 
     Vec_IntFree( vPiValues );

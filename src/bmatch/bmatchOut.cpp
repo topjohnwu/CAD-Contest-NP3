@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, bool outMuxOn2 );
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const char* filename );
+int Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const int & maxScore, const char* filename );
 
 #ifdef __cplusplus
 }
@@ -133,15 +133,24 @@ void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, in
 
 ***********************************************************************/
 
-void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const char* filename )
+int Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const int & maxScore, const char* filename )
 {    
     // For loops
-    int i;
+    int i, score = 0;
     Abc_Obj_t * pObj;
+ 
+    Abc_NtkForEachPo( pNtk1, pObj, i )
+    {
+        if(outGroup[i].size()){
+            score += 11 + outGroup[i].size();
+        }
+    }    
+    if( score < maxScore )
+        return score;
 
     ofstream f(filename);
-    // ostream & f = cout; // For debugging 
-
+    // ostream & f = cout; // For debugging
+    
     Abc_NtkForEachPo( pNtk1, pObj, i )
     {
         if(outGroup[i].size())
@@ -176,6 +185,7 @@ void Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup
 
     if (f.is_open()) cout << "Create \"" << filename << "\" success!" << endl;
     f.close();
+    return score;
 }
 
 ////////////////////////////////////////////////////////////////////////
