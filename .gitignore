@@ -30,6 +30,15 @@
 # Sublime project files
 *sublime*
 
+# Latex
+*.aux
+*.log
+*.swp
+*.fdb_latexmk
+*.fls
+*.pdf
+*.synctex.*
+
 # Import from abc project
 DebugLib/
 DebugExe/
