@@ -4,7 +4,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{NP3: Non-exact Projective NPNP Boolean Matching}
+\title{105-2~~EDA Final Project \\ NP3: Non-exact Projective NPNP Boolean Matching}
 
 
 % author names and affiliations
@@ -12,15 +12,15 @@
 % affiliations
 \author{\IEEEauthorblockN{Yen-Shi Wang}
 \IEEEauthorblockA{
-School of Electrical and\\Computer Engineering\\
-Georgia Institute of Technology\\
-Atlanta, Georgia 30332--0250\\
-Email: b03901116@ntu.edu.tw}
+EE Dept. \\
+National Taiwan University \\
+b03901116@ntu.edu.tw}
 \and
 \IEEEauthorblockN{John Wu}
-\IEEEauthorblockA{Twentieth Century Fox\\
-Springfield, USA\\
-Email: b03901034@ntu.edu.tw}
+\IEEEauthorblockA{
+EE Dept. \\
+National Taiwan University \\
+b03901034@ntu.edu.tw}
 \and}
 
 % conference papers do not typically use \thanks and this command
@@ -47,14 +47,8 @@ Email: b03901034@ntu.edu.tw}
 %Telephone: (800) 555--1212, Fax: (888) 555--1212}
 %\IEEEauthorblockA{\IEEEauthorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
 
-
-
-
 % use for special paper notices
 %\IEEEspecialpapernotice{(Invited Paper)}
-
-
-
 
 % make the title area
 \maketitle
@@ -62,7 +56,8 @@ Email: b03901034@ntu.edu.tw}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-簡單介紹NP3問題、應用，我們以ABC所建構的Solver，主要結構以及實驗結果、能進步的地方。
+NP3 Boolean Matching 的問題，是給定兩個電路，目標是尋找：在PI與PO可以經由排列與反向後，可以對應到function上完全一樣的最多對數。在design rectification, technology mapping, 以及 logic synthesis application中都會使用到，由於此問題更加廣義化了一般NPNP或PP equivalence matching 的問題，所以更加值得研究。在這一份研究報告中，我們在ABC上實做了一個使用AIG並與QBF作結合的Solver，並使用ILP電路來使成效最佳化。
+
 \end{abstract}
 
 % no keywords

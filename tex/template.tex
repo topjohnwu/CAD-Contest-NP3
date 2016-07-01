@@ -320,6 +320,10 @@
 % (Unless specifically asked to do so by the journal or conference you plan
 % to submit to, of course. )
 
+\usepackage[CheckSingle, CJKmath]{xeCJK}  % xelatex 中文
+\setCJKmainfont[BoldFont={Droid Sans Fallback},Scale=0.95]{I.BMing}
+\newCJKfontfamily\Hei{Droid Sans Fallback}
+\usepackage{CJKulem}	% 中文字裝飾
 
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
@@ -328,6 +332,7 @@
 \begin{document}
 \input{Title}
 \input{Introduction}
+\input{Preliminaries}
 \input{Implementation}
 \input{Experiment}
 \input{Conclusion}
