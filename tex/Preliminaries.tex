@@ -20,4 +20,5 @@ In general, we will write the formula in the following format:
 
 Each $Q \in \{\forall, \exists\}$ represents a quantifier, and each $X_i$ represents a block consists of adjacent quantifier variables. Since many researches has already put forward efficient methods to solve QBF problems, mapping the original question to QBF problems can help reduce the complicated process for proving, but the downside is longer solving process.
 % 每一個$Q \in \{\forall, \exist\}$代表一種 Quantifier，每一個$X_i$代表一個variables block，由相鄰的一樣 Quantifier 的變數所組成。解決QBF這樣形式的問題，近年來有非常多研究[6,7,8]，因此如果將問題轉變成QBF，便能省去許多證明流程上的複雜性，但相對來說，會使得解決的效率變差。
+    近年來比較新的研究有[2,3]，而在ABC裡面所建構的QBF，只能解決2 level的QBF問題，它是利用隨機生成第一組$\forall$變數，並且呼叫 miniSAT[7]，若SAT則檢查$\forall$部份是否為UNSAT，若UNSAT則將這一組assignment記錄下來，並尋找下一組，將前一組失敗的結果與新的AND起來達到pruning的效果。
 

@@ -17,7 +17,7 @@ Second, by using the candidate list above, we can simulate the matching pair of 
 Another approach is that after observing the support, we start from the POs with the smallest cones and use QBF solver to solve this partial circuit. If a solution exists, we use this information to assign PIs and recursively solve the rest of the circuit until a conflict occurs. If conflict occurs, we skip this group and continue the process starting from the next group.
 % 另一個方式則是在做完supports的觀察後，決定先從PO的fanin con最小的開始作配對，直接扔進QBF solver，看是否有解，如果有解則將PI對應的順序記錄下來，以此為條件繼續作fanin con 數量第二小的PO的配對，持續直到conflict產生，可以跳過這組PO配對或者重頭來過，並以這樣的算法持續運作。
 
-\section{Jod Division}
+\section{Job Division}
 John Wu: Connect QBF solver, test automation, result parsing, output, presentation PowerPoint contents, report final touches and translation\\
 
 Yen-Shi Wang: Construct all circuits in ABC, PowerPoint for presentation, report initial version \\

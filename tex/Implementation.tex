@@ -9,17 +9,20 @@ We mainly use command read\_verilog to read two verilog files, and construct the
 
 \subsection{AIG Structure}
 And-inverter graph (AIG) is a directed, acyclic graph that represents a structural implementation of the logical functionality of a circuit or network.
+
 Each AIG node represents an AND gate in the circuit, and each input pin can be inverted. Dealing with boolean satisfiability for formal verification with the AIG format has great advantages. The benefits also applies to model checking and equivalence checking.
 After we read in the two files, we will immediately strash and let ABC automatically convert the network into AIG structures. Our circuit are shown in Fig. 1
-<<<<<<< b6d38f08ef4ccd62ce992c2ea21702847d3c832d
-In Fig. 1, the upper compartment is composed of n MUXes. Each MUX matches an output of Cir1, and the input value of the MUX will select one output from Cir2. The correspond Cir1 output and the selected output of Cir2 will be connected with an XOR gate. All XOR gates will then be connected to an OR gate to make sure all output matches are correct.
-The similar logic applies to the lower compartment. Each MUX matches an input of Cir2, and the input value of the MUX will select one input from Cir1. The MUX will feed the correspond input of Cir1 into Cir2.
-These two MUX groups simulate the matching process. By assigning values to each MUX groups, each assignments means one match pair patterns of the PI/POs. So the problem is simplified to assigning the input values of the MUXes, we just need to parse the values before output to generate the solution.
+    
     \begin{figure}[H]
     \centering
     \includegraphics[scale=0.18]{images/structure}
     \caption{}
     \end{figure}
+
+In Fig. 1, the upper compartment is composed of n MUXes. Each MUX matches an output of Cir1, and the input value of the MUX will select one output from Cir2. The correspond Cir1 output and the selected output of Cir2 will be connected with an XOR gate. All XOR gates will then be connected to an OR gate to make sure all output matches are correct.
+
+The similar logic applies to the lower compartment. Each MUX matches an input of Cir2, and the input value of the MUX will select one input from Cir1. The MUX will feed the correspond input of Cir1 into Cir2.
+These two MUX groups simulate the matching process. By assigning values to each MUX groups, each assignments means one match pair patterns of the PI/POs. So the problem is simplified to assigning the input values of the MUXes, we just need to parse the values before output to generate the solution.
 % 每一個AIG中的node代表一個電路圖中的And gate，並且在每一個input端可以決定這個值是否要被翻轉。以這種形式表示電路來處理Boolean satisfiability在formal verification的領域裡有非常大的成效，包含model checking以及equivalence checking。
 % 因此在將兩個電路讀進ABC system後，進行strash的動作，直接將整個電路圖轉變成為AIG的形式以進行接下來的操作，如圖1所示。
 % 放ppt的圖
@@ -34,4 +37,4 @@ To control the quality of our result, we connect all the NULL bits to an externa
     \caption{ILP circuit for $a+b+c+d+e+f \geq 3$, from[6]}
     \end{figure}
 
-
+In Figure 2, each node of the graph is a MUX controlled by variable. If $a=1$ we choose 1, else we choose 0. For n variables and a constant k, the size of circuit is only $(n - k + 1)k$.
