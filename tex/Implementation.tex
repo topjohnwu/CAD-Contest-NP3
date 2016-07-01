@@ -1,4 +1,7 @@
 \section{Implementation}
+在這個段落會詳細講解我們如何建構這個簡單的Solver，首先介紹我們所使用的ABC package，裡面內建的部份資料結構以及可以使用的API；接下來因為我們會使用AIG的方式來儲存整個電路，所以會展示電路的架構圖；最後一部分使用ILP來達到iterative遞增解決問題的方式，簡單說明如何以電路設計類似$a+b+c \geq 2$的不等式。
 \subsection{ABC Package}
+ABC 是 A System for Sequential Synthesis and Verification 由 Berkely的Berkeley Logic Synthesis and Verification Group所建構，他可以用AIG的形式處理可擴張的電路，並且以DAG為基礎，最佳延遲為目標，在系統中運作時都會進行technology mapping。
+我們主要使用read_verilog這個指令來有效的讀取兩個電路檔，並參考ABC中的miter與[9]來建構整個電路，
 \subsection{AIG Structure}
 \subsection{ILP Circuit}
