@@ -35,6 +35,7 @@ extern "C" {
 
 void Bmatch_PrintNtkStats       ( Abc_Ntk_t * pNtk );
 void Bmatch_PrintIO             ( Abc_Ntk_t * pNtk );
+void Bmatch_Print3Circuit       ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk3 );
 
 #ifdef __cplusplus
 }
@@ -89,6 +90,13 @@ void Bmatch_PrintIO( Abc_Ntk_t * pNtk )
         Abc_ObjPrint( stdout, pObj );
     }
     printf("Total           PI : %7d   PO : %7d \n", Abc_NtkPiNum( pNtk ), Abc_NtkPoNum( pNtk ) );
+}
+
+void Bmatch_Print3Circuit       ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk3 )
+{
+    printf("Total   Cir1    PI : %7d   PO : %7d \n", Abc_NtkPiNum( pNtk1 ), Abc_NtkPoNum( pNtk1 ) );
+    printf("Total   Cir2    PI : %7d   PO : %7d \n", Abc_NtkPiNum( pNtk2 ), Abc_NtkPoNum( pNtk2 ) );
+    printf("Total   CirQbf  PI : %7d   PO : %7d \n", Abc_NtkPiNum( pNtk3 ), Abc_NtkPoNum( pNtk3 ) );  
 }
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///

@@ -83,20 +83,20 @@ Abc_Ntk_t * Bmatch_PrepareQbfNtk( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, const in
 
     Abc_NtkOrderObjsByName( pNtk1, 0 );
     Abc_NtkOrderObjsByName( pNtk2, 0 );
-    printf("= \n");
+    //printf("= \n");
     Bmatch_PrepareNtk1( pNtk1, pNtk_Qbf );
-    printf("== \n");
+    //printf("== \n");
     Bmatch_CreatePIMUXes( pNtk1, pNtk2, pNtk_Qbf );
-    printf("=== \n");
+    //printf("=== \n");
     if( muxOnCir2 ){
         Bmatch_CreatePOMUXes( pNtk2, pNtk1, pNtk_Qbf );
-        forILP = Abc_NtkPoNum( pNtk1 ) - ILP_constraint;
+        forILP = Abc_NtkPoNum( pNtk1 ) + 1 - ILP_constraint;
     }
     else{
         Bmatch_CreatePOMUXes( pNtk1, pNtk2, pNtk_Qbf );
-        forILP = Abc_NtkPoNum( pNtk2 ) - ILP_constraint;
+        forILP = Abc_NtkPoNum( pNtk2 ) + 1 - ILP_constraint;
     }
-    printf("==== \n");
+    //printf("==== \n"); 
     Bmatch_PrepareFinal( pNtk_Qbf, forILP );
 
     Abc_NtkOrderObjsByName( pNtk_Qbf, 0 );

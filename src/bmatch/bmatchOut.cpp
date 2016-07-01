@@ -71,9 +71,9 @@ void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, in
     int i;
     Abc_Obj_t * pObj;
 
-    cout << "Type\tName\t\tResult\t\t"
+    //cout << "Type\tName\t\tResult\t\t"
     // << "Spec\tMatch\tc1_id\tc2_id"
-    << endl;
+    //<< endl;
 
     Abc_NtkForEachPi( pNtkQbf, pObj, i )
     {
@@ -101,16 +101,16 @@ void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, in
             }
 
             // Debug message
-            cout 
-            << (x?"PI\t":"PO\t")
-            << (x||!outMuxOn2?"Cir 2:\t":"Cir 1:\t")
-            << previous + "\t" 
-            << (x||!outMuxOn2?"Cir 1:\t":"Cir 2:\t") << ((num & 2)?"!":"") << ((num & 1)?(x?"CONST0\t":"NULL\t"): Abc_ObjName(x?(Abc_NtkPi(pNtk1,id)):(Abc_NtkPo(outMuxOn2?pNtk2:pNtk1,id))))
+            //cout 
+            //<< (x?"PI\t":"PO\t")
+            //<< (x||!outMuxOn2?"Cir 2:\t":"Cir 1:\t")
+            //<< previous + "\t" 
+            //<< (x||!outMuxOn2?"Cir 1:\t":"Cir 2:\t") << ((num & 2)?"!":"") << ((num & 1)?(x?"CONST0\t":"NULL\t"): Abc_ObjName(x?(Abc_NtkPi(pNtk1,id)):(Abc_NtkPo(outMuxOn2?pNtk2:pNtk1,id))))
             // << ((num & 1)?(x?"CONST\t":"NULL\t"): "\t") 
             // << ((num & 2)?"!":"") << id << "\t" 
             // << ((x||!outMuxOn2)?id:(cur-1)) << "\t" 
             // << ((!x&&outMuxOn2)?id:(cur-1)) << "\t"
-            << endl;
+            //<< endl;
 
             previous = "";
             num = bit = 0;
@@ -145,7 +145,7 @@ int Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup,
             score += 11 + outGroup[i].size();
         }
     }    
-    if( score < maxScore )
+    if( score <= maxScore )
         return score;
 
     ofstream f(filename);

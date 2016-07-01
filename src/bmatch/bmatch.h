@@ -56,6 +56,7 @@ class Node;
 extern void Bmatch_Resync               ( Abc_Ntk_t * &pNtk );
 extern void Bmatch_PrintNtkStats        ( Abc_Ntk_t * pNtk );
 extern void Bmatch_PrintIO              ( Abc_Ntk_t * pNtk );
+extern void Bmatch_Print3Circuit   	    ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk3 );
 extern Abc_Ntk_t * Bmatch_PrepareQbfNtk ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, const int & ILP_constraint, const bool & muxOnCir2 );
 extern bool        Bmatch_SolveQbf      ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int nItersMax, int fVerbose );
 extern void Bmatch_Parse               	( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, bool outMuxOn2 );

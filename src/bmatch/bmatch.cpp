@@ -118,47 +118,50 @@ int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
     if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
         return 1;
 
+while(1){
+    printf( "ILP = %6d \n", ILP_constraint );
     // Need placing in the beginning to get coherence!
     pNtkQbf = Bmatch_PrepareQbfNtk( pNtk1, pNtk2, ILP_constraint, muxOnCir2 );
     Bmatch_Resync( pNtkQbf );
 
-    printf("Cir 1:\n");
-    Bmatch_PrintIO( pNtk1 );
-    printf("\nCir 2:\n");
-    Bmatch_PrintIO( pNtk2 );
-    printf("\nCir QBF:\n");
-    Bmatch_PrintIO( pNtkQbf );
-    printf("\n");
+    Bmatch_Print3Circuit( pNtk1, pNtk2, pNtkQbf );
 
-    if( fVerification ){
+    /*if( fVerification ){
         printf("Do verification! \n");
-    }
+    }*/
     // Abc_FrameSetCurrentNetwork( pAbc, pNtkQbf );
 
     vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
 
-    if( Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 50, 0 ) )
+    if( Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 20, 0 ) )
     {
         inGroup = new vector<Node>[ Abc_NtkPiNum( pNtk1 ) ];
         outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
         constGroup = new vector<Node>;
 
-        printf("\nQBF Output: ");
-        Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
-        printf("\n");
+        //printf("\nQBF Output: ");
+        //Abc_NtkVectorPrintPars( vPiValues, Abc_NtkPiNum( pNtkQbf ) - Abc_NtkPiNum( pNtk1 ) );
+        //printf("\n");
+        
         Bmatch_Parse( pNtk1, pNtk2, pNtkQbf, vPiValues->pArray, inGroup, outGroup, constGroup, true );
         score = Bmatch_Output( pNtk1, pNtk2, inGroup, outGroup, constGroup, score, "match.out");
         if( score > maxScore ) maxScore = score;
-    }
-
-    if( fVerification ){
-        printf("score : %6d \n", score);
+        if( fVerification ){
+            printf("score : %6d \n \n", score);
+        }
     }
 
     Vec_IntFree( vPiValues );
-    if(inGroup) delete[] inGroup;
-    if(outGroup) delete[] outGroup;
-    if(constGroup) delete constGroup;
+    if(inGroup){ delete[] inGroup; inGroup = NULL; }
+    if(outGroup){ delete[] outGroup; outGroup = NULL; }
+    if(constGroup){ delete constGroup; constGroup = NULL; }
+    Abc_NtkDelete(pNtkQbf);
+
+    ++ILP_constraint;
+    if( muxOnCir2 && Abc_NtkPoNum( pNtk1 ) + 1 - ILP_constraint == 0) break;
+    else if( Abc_NtkPoNum( pNtk2 ) + 1 - ILP_constraint == 0) break;
+    printf("\n");
+}    
     return 0;
 
 usage:
