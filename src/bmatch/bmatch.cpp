@@ -133,7 +133,7 @@ while(1){
 
     vPiValues = Vec_IntStart( Abc_NtkPiNum(pNtkQbf) );
 
-    if( Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 20, 0 ) )
+    if( Bmatch_SolveQbf( pNtkQbf, vPiValues, Abc_NtkPiNum( pNtk1 ), 200, 0 ) )
     {
         inGroup = new vector<Node>[ Abc_NtkPiNum( pNtk1 ) ];
         outGroup = new vector<Node>[ Abc_NtkPoNum( pNtk1 ) ];
