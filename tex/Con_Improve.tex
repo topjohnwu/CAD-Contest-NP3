@@ -11,7 +11,7 @@ To achieve better performance, it is impossible to throw the whole circuit into 
 First is to observe the PO structural supports and functional supports for both circuits. We can use this information as the upper and lower bound. If the support range of the POs of the two circuits do not overlap, it means that the two POs are impossible to match. We can than construct a candidate matching list for each POs.
 % 第一點是觀察兩個電路中每個PO的structural supports與functional supports數量，可以利用這兩個值作為上下界，並再擴張"兩個電路PI數量的差距"，只要兩個PO的範圍沒有重疊則表示這兩個PO不可能functional equivalence，可以由此建構出每個Cir1的PO可能對應到Cir2的PO的表，並根據此表的對應關係來作MUX或是進一步的Combinational Equivalence Checking。
 
-Second, by using the candidate list above, we can simulate the matching pair of POs to partition the PIs into groups. By the order of the partitioning process and the size of each groups, we can match the PI groups of the two groups, which drastically reduce the number of pairs.
+Second, by using the candidate list above, we can simulate the matching pair of POs to partition the PIs into groups. By the order of the partitioning process and the size of each groups, we can match the PI groups of the two circuits, which drastically reduce the number of pairs.
 % 再來則是對於兩個已知有機會相等的PO，如果先不考慮PI端的negation，可以利用[1]中所提到的方法，經由simulation來將Cir1與Cir2的PI分別作分堆的動作，並且依據分出堆的先後順序與大小排列，即可根據兩邊的分堆來作PI的對應，可以大量減少可能對應的對數。
 
 Another approach is that after observing the support, we start from the POs with the smallest cones and use QBF solver to solve this partial circuit. If a solution exists, we use this information to assign PIs and recursively solve the rest of the circuit until a conflict occurs. If conflict occurs, we skip this group and continue the process starting from the next group.
