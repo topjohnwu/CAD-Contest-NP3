@@ -1,17 +1,23 @@
 \section{Preliminaries}
-給定兩個電路Cir1與Cir2，他們的PIs與POs分別為X,Y與F,G，代表PI或PO的集合，並且寫作$X = \{x_1, x_2, ... , x_n\}$, $Y = \{y_1, y_2, ... , y_m\}$, $F = \{f_1, f_2, ... , f_k\}$, $G = \{g_1, g_2, ... , x_l\}$，另外使用$MUX(A, c_1, c_2, ... ,c_t)$來表示以A集合中的變數來選取c_1至c_t 的其中一個，將其中一個值傳至輸出端。
+Given two circuits Cir1 and Cir2, the (PIs, POs) of each circuit are (X, F) and (Y, G) respectively. X, Y, F, G are sets of PIs/POs, and can presented as: $X = \{x_1, x_2, ... , x_n\}$, $Y = \{y_1, y_2, ... , y_m\}$, $F = \{f_1, f_2, ... , f_k\}$, $G = \{g_1, g_2, ... , x_l\}$. We use expression $MUX(A, c_1, c_2, ... ,c_t)$ to denote the output of a MUX, which uses the elements in set A to determine which of c_1 to c_t are assigned as the output.
+
+% 給定兩個電路Cir1與Cir2，他們的PIs與POs分別為X,Y與F,G，代表PI或PO的集合，並且寫作$X = \{x_1, x_2, ... , x_n\}$, $Y = \{y_1, y_2, ... , y_m\}$, $F = \{f_1, f_2, ... , f_k\}$, $G = \{g_1, g_2, ... , x_l\}$，另外使用$MUX(A, c_1, c_2, ... ,c_t)$來表示以A集合中的變數來選取c_1至c_t 的其中一個，將其中一個值傳至輸出端。
 
 \subsection{NP3 Boolean Matching}
-給定兩個個電路Cir1與Cir2，對於電路Cir2的PI集合Y的元素，$y_i \in \{0, 1, x_1, \overline{x_1}, x_2, \overline{x_2}, ... , x_n, \overline{x_n}\}$，在此條件下，對於Cir2的PO集合G的元素，$g_i \in \{f_1, \overline{f_1}, f_2, \overline{f_2}, ... , f_n, \overline{f_n}, other\}$，目標是找到一組對應關係，使得給定任意的inputs，有最多對的$g_i \equiv f_j$。
+Given two circuits Cir1 and Cir2, $\forall y_i \in Y$, $ y_i \in \{0, 1, x_1, \overline{x_1}, x_2, \overline{x_2}, ... , x_n, \overline{x_n}\}$. Under this circumstance, $\forall g_i \in G$, $g_i \in \{f_1, \overline{f_1}, f_2, \overline{f_2}, ... , f_n, \overline{f_n}, others\}$. The goal is to find an assignment that gives the maximum number of equivalent pair $(g_i \equiv f_j)$ under any possible input values.
+% 給定兩個個電路Cir1與Cir2，對於電路Cir2的PI集合Y的元素，$y_i \in \{0, 1, x_1, \overline{x_1}, x_2, \overline{x_2}, ... , x_n, \overline{x_n}\}$，在此條件下，對於Cir2的PO集合G的元素，$g_i \in \{f_1, \overline{f_1}, f_2, \overline{f_2}, ... , f_n, \overline{f_n}, other\}$，目標是找到一組對應關係，使得給定任意的inputs，有最多對的$g_i \equiv f_j$。
 
 \subsection{Quantified Boolean Formula}
-我們可以將NP3 Boolean Matching 的問題轉成一個QBF的問題，而QBF是廣義版的Boolean satisfiability problem，以另一個說法，QBF詢問對於一連串Quantified Boolean varibles with order，formula \phi 是否有解，以下舉一個例子：
+Since we can map our problem into a QBF problem, we will now make a brief explanation for QBFs. A Quantified Boolean Formula queries whether formula $\phi$ is satisfiable under a series of quantified boolean variables with order. For example: 
+% 我們可以將NP3 Boolean Matching 的問題轉成一個QBF的問題，而QBF是廣義版的Boolean satisfiability problem，以另一個說法，QBF詢問對於一連串Quantified Boolean varibles with order，formula \phi 是否有解，以下舉一個例子：
 
 \[ \forall x\ \exists y\ \exists z\ .((x\lor z)\land y) \]
 
-在一般的狀況下，我們會將式子寫成這樣的形式：
+In general, we will write the formula in the following format:
+% 在一般的狀況下，我們會將式子寫成這樣的形式：
 
 \[ \exists X_1\ \forall X_2\ \cdots Q_nX_n .~\phi \]
 
-每一個$Q \in \{\forall, \exist\}$代表一種 Quantifier，每一個$X_i$代表一個variables block，由相鄰的一樣 Quantifier 的變數所組成。解決QBF這樣形式的問題，近年來有非常多研究[6,7,8]，因此如果將問題轉變成QBF，便能省去許多證明流程上的複雜性，但相對來說，會使得解決的效率變差。
+Each $Q \in \{\forall, \exist\}$ represents a quantifier, and each $X_i$ represents a block consists of adjacent quantifier variables. Since many researches has already put forward efficient methods to solve QBF problems, mapping the original question to QBF problems can help reduce the complicated process for proving, but the downside is longer solving process.
+% 每一個$Q \in \{\forall, \exist\}$代表一種 Quantifier，每一個$X_i$代表一個variables block，由相鄰的一樣 Quantifier 的變數所組成。解決QBF這樣形式的問題，近年來有非常多研究[6,7,8]，因此如果將問題轉變成QBF，便能省去許多證明流程上的複雜性，但相對來說，會使得解決的效率變差。
 
