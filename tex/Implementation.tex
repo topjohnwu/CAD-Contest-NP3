@@ -13,13 +13,14 @@ And-inverter graph (AIG) is a directed, acyclic graph that represents a structur
 Each AIG node represents an AND gate in the circuit, and each input pin can be inverted. Dealing with boolean satisfiability for formal verification with the AIG format has great advantages. The benefits also applies to model checking and equivalence checking.
 After we read in the two files, we will immediately strash and let ABC automatically convert the network into AIG structures. Our circuit are shown in Fig. 1
     
-    \begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.18]{images/structure}
-    \caption{}
-    \end{figure}
 
 In Fig. 1, the upper compartment is composed of n MUXes. Each MUX matches an output of Cir1, and the input value of the MUX will select one output from Cir2. The correspond Cir1 output and the selected output of Cir2 will be connected with an XOR gate. All XOR gates will then be connected to an OR gate to make sure all output matches are correct.
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.32]{images/structure}
+    \caption{}
+    \end{figure}
 
 The similar logic applies to the lower compartment. Each MUX matches an input of Cir2, and the input value of the MUX will select one input from Cir1. The MUX will feed the correspond input of Cir1 into Cir2.
 These two MUX groups simulate the matching process. By assigning values to each MUX groups, each assignments means one match pair patterns of the PI/POs. So the problem is simplified to assigning the input values of the MUXes, we just need to parse the values before output to generate the solution.
@@ -31,10 +32,10 @@ These two MUX groups simulate the matching process. By assigning values to each 
 To control the quality of our result, we connect all the NULL bits to an external ILP circuit to control the number of matching pairs. On one hand, if we set the minimum pairs to be 0 (which mean no restrictions at all), there is a possibility that the QBF solving will return an all NULL solution (no matching pair is also an answer); on the other hand, if we set the minimum pair number too high, it is likely we cannot find a single solution in the limited time. So we iteratively increase the minimum pair until the time limit hits. By doing so, we will at least have a decent solution before the time runs out.
 % 在圖中，上半部份是由n個MUX所組成，每一個MUX會從Cir2的outputs裡面選一個作為輸出，輸出之後與Cir1中的每一個output連接至一個XOR gate，將所有的XOR的輸出連接至一個OR gate後，將控制輸出是否為CONST0的MUX連接至ILP circuit，最後將ILP的輸出與OR gate的輸出and在一起，得到最後的OUTPUT。
 
+In Figure 2, each node of the graph is a MUX controlled by variable. If $a=1$ we choose 1, else we choose 0. For n variables and a constant k, the size of circuit is only $(n - k + 1)k$.
+    
     \begin{figure}[H]
     \centering
     \includegraphics[scale=0.25]{images/ILP}
     \caption{ILP circuit for $a+b+c+d+e+f \geq 3$, from[6]}
     \end{figure}
-
-In Figure 2, each node of the graph is a MUX controlled by variable. If $a=1$ we choose 1, else we choose 0. For n variables and a constant k, the size of circuit is only $(n - k + 1)k$.
