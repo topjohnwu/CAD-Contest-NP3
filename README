@@ -1,0 +1,7 @@
+type 'make' to compile the entire program.
+make "run" file be executable,
+and type './run [0-14] [-v]' to do boolean-matching for case[0-14] in
+"bmatch_bench/" directory.
+the answer will be print to "match.out" file.
+
+All of our source code are put in the "src/bmatch" directory.
