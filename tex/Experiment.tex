@@ -1,2 +1,30 @@
 \section{Experimental Results}
-MUX on diffeent side of circuit
+
+在官方所附的15個testcase中，我們設定每一次測試上限為1800秒，得到如圖二所示，表中第二行與第三行分別為Cir1與Cir2的PI與PO個數，第四行為這個case的runtime，以及第五行是在這個時間長度下所得到的output對應到的pair數。\\
+
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+case & PI/PO & PI/PO & run time & pair(s) \\
+\hline
+case0 & 3/3 & 5/3 & 0.03 & 2 \\
+\hline
+case1 & 13/16 & 16/16 & 28.13 & 2 \\
+\hline
+case2 & 42/16 & 43/16 & 507 & 1 \\
+\hline
+case3 & 249/15 & 250/15 & 20.32 & 8 \\
+\hline
+case4 & 11/16 & 16/16 & 1704.2 & 2 \\
+\hline
+case10 & 4/2 & 4/2 & 0.02 & 2 \\
+\hline
+case11 &&&& \\
+\hline
+\end{tabular}
+\\
+
+由表格中可以看出，對於很小的case，QBF都可以馬上解出答案，但是對於稍大一點的case，使用ILP iterative的方式，基本上都只能解至1到2的狀況，
+我們的程式可以將output端的MUX放置於Cir1或是Cir2上，由於對應與計分方式的不同，最後選擇將MUX放至於Cir2上面
+
+
+
