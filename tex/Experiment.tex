@@ -24,7 +24,7 @@ case11 &&&& \\
 \end{tabular}
 \\
 
-By view the results, we can see that for small cases, QBF can solve it within seconds. However, in large cases, the iterative process are forced to limit the minimum pair with ILP to a low number. We can only get 1 ~ 2 output matches in the large cases.
+By viewing the results, we can see that for small cases, QBF can solve it within seconds. However, in large cases, the iterative process are forced to limit the minimum output pair number with ILP to a low value. We can only get 1 ~ 2 output matches in the large cases.
 Our program can choose the location to construct the output MUX groups. Due to the scoring methods, we eventually decided to construct the MUXes on the Cir2 outputs (as stated in our implementation section).
 % 由表格中可以看出，對於很小的case，QBF都可以馬上解出答案，但是對於稍大一點的case，使用ILP iterative的方式，基本上都只能解至1到2的狀況，
 % 我們的程式可以將output端的MUX放置於Cir1或是Cir2上，由於對應與計分方式的不同，最後選擇將MUX放至於Cir2上面

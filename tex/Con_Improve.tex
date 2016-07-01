@@ -1,18 +1,25 @@
 \section{Conclusion}
-我們使用ABC system中建構的AIG模組，讀取兩個verilog的電路檔，並連接MUX以及ILP電路，最後使用裡面內建的QBF solver來解決NP3 Boolean Matching的問題，在效能上有許多問題並沒有考量到，由於MUX個數過多，以及QBF solver的效能不太能控制，也沒有使用外部的solver，因此我們所建構的NP3 solver算是一個簡單完整的程式，只是並不能保證效能。
+We use the advanced tool ABC as a base to do all of our implementations. First we read in two verilog files, construct the MUX groups and ILP circuits, and join the circuits to the network. After doing basic resync/strashing, we use the internal QBF function to derive the solution.
+We overlooked many performance concerns in our current implementation: the number of MUXes are too large; the internal QBF solver is un-controllable, and we haven't resort to external superior QBF solvers.
+So our solution is simple, complete, but rather inefficient.
+% 我們使用ABC system中建構的AIG模組，讀取兩個verilog的電路檔，並連接MUX以及ILP電路，最後使用裡面內建的QBF solver來解決NP3 Boolean Matching的問題，在效能上有許多問題並沒有考量到，由於MUX個數過多，以及QBF solver的效能不太能控制，也沒有使用外部的solver，因此我們所建構的NP3 solver算是一個簡單完整的程式，只是並不能保證效能。
 
 \section{Improvement}
-如果要使效能變快，一定不能整個電路都扔進QBF solver中，這樣的search space實在太過龐大，考量到這個部份，接下來會朝幾個方向來思考如何進步。
+To achieve better performance, it is impossible to throw the whole circuit into the QBF solver due to the massive search space. Putting this into consideration, we aim to improve in these few directions.
+% 如果要使效能變快，一定不能整個電路都扔進QBF solver中，這樣的search space實在太過龐大，考量到這個部份，接下來會朝幾個方向來思考如何進步。
 
-第一點是觀察兩個電路中每個PO的structural supports與functional supports數量，可以利用這兩個值作為上下界，並再擴張"兩個電路PI數量的差距"，只要兩個PO的範圍沒有重疊則表示這兩個PO不可能functional equivalence，可以由此建構出每個Cir1的PO可能對應到Cir2的PO的表，並根據此表的對應關係來作MUX或是進一步的Combinational Equivalence Checking。
+First is to observe the PO structural supports and functional supports for both circuits. We can use this information as the upper and lower bound. If the support range of the POs of the two circuits to not overlap, it means that the two POs are impossible to match. We can than construct a candidate matching list for each POs.
+% 第一點是觀察兩個電路中每個PO的structural supports與functional supports數量，可以利用這兩個值作為上下界，並再擴張"兩個電路PI數量的差距"，只要兩個PO的範圍沒有重疊則表示這兩個PO不可能functional equivalence，可以由此建構出每個Cir1的PO可能對應到Cir2的PO的表，並根據此表的對應關係來作MUX或是進一步的Combinational Equivalence Checking。
 
-再來則是對於兩個已知有機會相等的PO，如果先不考慮PI端的negation，可以利用[1]中所提到的方法，經由simulation來將Cir1與Cir2的PI分別作分堆的動作，並且依據分出堆的先後順序與大小排列，即可根據兩邊的分堆來作PI的對應，可以大量減少可能對應的對數。
+Second, by using the candidate list above, we can simulate the matching pair of POs to partition the PIs into groups. By the order of the partitioning process and the size of each groups, we can match the PI groups of the two groups, which drastically reduce the number of pairs.
+% 再來則是對於兩個已知有機會相等的PO，如果先不考慮PI端的negation，可以利用[1]中所提到的方法，經由simulation來將Cir1與Cir2的PI分別作分堆的動作，並且依據分出堆的先後順序與大小排列，即可根據兩邊的分堆來作PI的對應，可以大量減少可能對應的對數。
 
-另一個方式則是在做完supports的觀察後，決定先從PO的fanin con最小的開始作配對，直接扔進QBF solver，看是否有解，如果有解則將PI對應的順序記錄下來，以此為條件繼續作fanin con 數量第二小的PO的配對，持續直到conflict產生，可以跳過這組PO配對或者重頭來過，並以這樣的算法持續運作。
+Another approach is that after observing the support, we start from the POs with the smallest cones and use QBF solver to solve this partial circuit. If a solution exists, we use this information to assign PIs and recursively solve the rest of the circuit until a conflict occurs. If conflict occurs, we skip this group and continue the process starting from the next group.
+% 另一個方式則是在做完supports的觀察後，決定先從PO的fanin con最小的開始作配對，直接扔進QBF solver，看是否有解，如果有解則將PI對應的順序記錄下來，以此為條件繼續作fanin con 數量第二小的PO的配對，持續直到conflict產生，可以跳過這組PO配對或者重頭來過，並以這樣的算法持續運作。
 
 \section{Jod Division}
-John Wu: 連接QBF solver、測試自動化與輸出解答檔案、撰寫PPT內容、Report修訂與改良\\
+John Wu: Connect QBF solver, test automation, result parsing, output, presentation PowerPoint contents, report final touches and translation\\
 
-Yen-Shi Wang: 於ABC中建構整個電路、製作PPT、Report初版\\
+Yen-Shi Wang: Construct all circuits in ABC, PowerPoint for presentation, report initial version \\
 
 % conference papers do not normally have an appendix
