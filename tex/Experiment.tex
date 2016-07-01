@@ -1,10 +1,11 @@
 \section{Experimental Results}
 
-在官方所附的15個testcase中，我們設定每一次測試上限為1800秒，得到如圖二所示，表中第二行與第三行分別為Cir1與Cir2的PI與PO個數，第四行為這個case的runtime，以及第五行是在這個時間長度下所得到的output對應到的pair數。\\
+We limit our running time to 1800 secs, and run through the 15 provided testcases. The second and third column values are shown in (PI number / PO number).\\
+% 在官方所附的15個testcase中，我們設定每一次測試上限為1800秒，得到如圖二所示，表中第二行與第三行分別為Cir1與Cir2的PI與PO個數，第四行為這個case的runtime，以及第五行是在這個時間長度下所得到的output對應到的pair數。\\
 
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-case & PI/PO & PI/PO & run time & pair(s) \\
+case & cir1 & cir2 & run time & pair(s) \\
 \hline
 case0 & 3/3 & 5/3 & 0.03 & 2 \\
 \hline
@@ -23,8 +24,10 @@ case11 &&&& \\
 \end{tabular}
 \\
 
-由表格中可以看出，對於很小的case，QBF都可以馬上解出答案，但是對於稍大一點的case，使用ILP iterative的方式，基本上都只能解至1到2的狀況，
-我們的程式可以將output端的MUX放置於Cir1或是Cir2上，由於對應與計分方式的不同，最後選擇將MUX放至於Cir2上面
+By view the results, we can see that for small cases, QBF can solve it within seconds. However, in large cases, the iterative process are forced to limit the minimum pair with ILP to a low number. We can only get 1 ~ 2 output matches in the large cases.
+Our program can choose the location to construct the output MUX groups. Due to the scoring methods, we eventually decided to construct the MUXes on the Cir2 outputs (as stated in our implementation section).
+% 由表格中可以看出，對於很小的case，QBF都可以馬上解出答案，但是對於稍大一點的case，使用ILP iterative的方式，基本上都只能解至1到2的狀況，
+% 我們的程式可以將output端的MUX放置於Cir1或是Cir2上，由於對應與計分方式的不同，最後選擇將MUX放至於Cir2上面
 
 
 
