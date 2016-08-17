@@ -35,6 +35,7 @@ extern "C" {
 
 void Bmatch_PrintNtkStats       ( Abc_Ntk_t * pNtk );
 void Bmatch_PrintIO             ( Abc_Ntk_t * pNtk );
+void Bmatch_PrintObj            ( Abc_Ntk_t * pNtk );
 void Bmatch_Print3Circuit       ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtk3 );
 
 #ifdef __cplusplus
@@ -59,15 +60,16 @@ void Bmatch_Print3Circuit       ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_
 
 void Bmatch_PrintNtkStats( Abc_Ntk_t * pNtk )
 {
-    int nPIs, nPOs, nNodes;
+    printf("Network name :    %s \n", Abc_NtkName(pNtk));
+    printf("number of PIs   = %d \n", Abc_NtkPiNum( pNtk ));
+    printf("number of POs   = %d \n", Abc_NtkPoNum( pNtk ));
+    printf("number of Nodes = %d \n", Abc_NtkNodeNum( pNtk ));
+}
+
+void Bmatch_PrintObj( Abc_Ntk_t * pNtk )
+{
     Abc_Obj_t * pObj;
     int i;
-    nPIs = Abc_NtkPiNum( pNtk );
-    nPOs = Abc_NtkPoNum( pNtk );
-    nNodes = Abc_NtkNodeNum( pNtk );
-    printf("number of PIs   = %d \n", nPIs);
-    printf("number of POs   = %d \n", nPOs);
-    printf("number of Nodes = %d \n", nNodes);
 
     Abc_NtkForEachObj( pNtk, pObj, i){
         printf("Name %15s : ", Abc_ObjName( pObj ));
