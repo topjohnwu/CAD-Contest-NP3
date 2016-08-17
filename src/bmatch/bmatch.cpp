@@ -41,6 +41,7 @@ void Bmatch_Init( Abc_Frame_t * pAbc );
 void Bmatch_End( Abc_Frame_t * pAbc );
 
 static int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv );
+static int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 #ifdef __cplusplus
 }
@@ -66,10 +67,57 @@ static int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv );
 void Bmatch_Init( Abc_Frame_t * pAbc )
 {
     Cmd_CommandAdd( pAbc , "z Bmatch" , "bmatch" , BmatchCommandBmatch , 0 );
+    Cmd_CommandAdd( pAbc , "z Bmatch" , "bmatchInit" , BmatchCommandInitTwoCircuits , 0 );
 }
 
 void Bmatch_End( Abc_Frame_t * pAbc )
 {
+}
+
+/**Function*************************************************************
+
+  Synopsis    [bmatch command Init]
+
+  Description [get Two Circuits and compute some characteristics]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    int c, fDelete1 = 0, fDelete2 = 0;
+    char ** pArgvNew;
+    int nArgcNew;
+    Abc_Ntk_t * pNtk1, * pNtk2;
+
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        default:
+            goto usage;
+        }
+    }
+
+    pArgvNew = argv + globalUtilOptind;
+    nArgcNew = argc - globalUtilOptind;
+    if( nArgcNew != 2 )
+    {
+        printf("Invalid command!\n");
+        goto usage;
+    }
+    if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
+        return 1;
+
+    Bmatch_PrepNtks( pAbc, pNtk1, pNtk2 );
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: bmatchInit <file1> <file2> \n" );
+    return 1;
 }
 
 /**Function*************************************************************
@@ -83,7 +131,6 @@ void Bmatch_End( Abc_Frame_t * pAbc )
   SeeAlso     []
 
 ***********************************************************************/
-
 int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv )
 {
     int c, fDelete1 = 0, fDelete2 = 0, ILP_constraint = 1;
