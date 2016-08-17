@@ -86,9 +86,20 @@ typedef struct PI_PO_INFO_ {
 	list< Abc_Obj_t * > 		* _f_match, * _x_match; // For answer !!
 
 	suppWrap 			 		* _f, * _g, * _x, * _y;
-	~PI_PO_INFO_(){
-		delete [] _f_match; delete [] _x_match;
-		delete [] _f; delete [] _g; delete [] _x; delete [] _y;
+	PI_PO_INFO_() { _f_match = NULL; _x_match = NULL; _f = NULL; _g = NULL; _x = NULL; _y = NULL; }
+	~PI_PO_INFO_() {
+		if( _f_match != NULL )
+			delete [] _f_match;
+		if( _x_match != NULL )
+			delete [] _x_match;
+		if( _f != NULL )
+			delete [] _f;
+		if( _g != NULL )
+			delete [] _g;
+		if( _x != NULL )
+			delete [] _x;
+		if( _y != NULL )
+			delete [] _y;
 	}
 } PI_PO_INFO;
 

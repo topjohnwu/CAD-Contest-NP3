@@ -113,6 +113,10 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
         return 1;
 
     Bmatch_PrepNtks( pAbc, pNtk1, pNtk2 );
+    //delete ( PI_PO_INFO * ) pAbc->pSave1;
+    //Abc_NtkDelete( pNtk1 );
+    //Abc_NtkDelete( pNtk2 );
+    //Abc_FrameDeleteAllNetworks( pAbc );
     return 0;
 
 usage:
