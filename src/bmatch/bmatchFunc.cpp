@@ -61,11 +61,11 @@ void Bmatch_PrepNtks        ( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t *
 
 void Bmatch_PrepNtks        ( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 )
 {
-    pAbc->pSave1    = new PI_PO_INFO;
-    PI_PO_INFO      * pInformation;
-    Abc_Obj_t       * pObj;
+//    pAbc->pSave1    = new PI_PO_INFO;
+//    PI_PO_INFO      * pInformation;
+//    Abc_Obj_t       * pObj;
     char            * pName;
-    int             i;
+//    int             i;
 
     pName = "cir1";
     Abc_NtkSetName( pNtk1, pName);
@@ -79,9 +79,23 @@ void Bmatch_PrepNtks        ( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t *
     Abc_NtkOrderObjsByName( pNtk1, 0 );
     Abc_NtkOrderObjsByName( pNtk2, 0 );
 
+    Abc_AigCleanup( (Abc_Aig_t *)pNtk1->pManFunc );
+    Abc_NtkAddDummyBoxNames( pNtk1 );
+    if ( !Abc_NtkCheck( pNtk1 ) ) {
+        printf( "The AIG construction has failed.\n" );     
+        Abc_NtkDelete( pNtk1 );
+    }
+
+    Abc_AigCleanup( (Abc_Aig_t *)pNtk2->pManFunc );
+    Abc_NtkAddDummyBoxNames( pNtk2 );
+    if ( !Abc_NtkCheck( pNtk2 ) ) {
+        printf( "The AIG construction has failed.\n" );     
+        Abc_NtkDelete( pNtk2 );
+    }
+
     Bmatch_PrintNtkStats(pNtk1);
     Bmatch_PrintNtkStats(pNtk2);
-
+/*
     pInformation = ( PI_PO_INFO * ) pAbc->pSave1;
     pInformation->_f_match = new list< Abc_Obj_t * > [ Abc_NtkPoNum(pNtk1) ];
     pInformation->_x_match = new list< Abc_Obj_t * > [ Abc_NtkPiNum(pNtk1) + 1];
@@ -93,8 +107,8 @@ void Bmatch_PrepNtks        ( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t *
         Abc_NtkForEachPi( pNtk1, pObj, i ) { ((pInformation->_x)[i]).thisObj = pObj; }
     pInformation->_y = new suppWrap [ Abc_NtkPiNum(pNtk2) ];
         Abc_NtkForEachPi( pNtk1, pObj, i ) { ((pInformation->_y)[i]).thisObj = pObj; }
-
-    Abc_FrameSetCurrentNetwork( pAbc, pNtk1 );
+*/
+//    Abc_FrameSetCurrentNetwork( pAbc, pNtk1 );
 }
 ////////////////////////////////////////////////////////////////////////
 ///                       END OF FILE                                ///
