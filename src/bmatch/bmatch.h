@@ -27,10 +27,11 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "base/abc/abc.h"
+#include "base/main/main.h"
 #include "manual_api.h"
-#include "base/main/mainInt.h"
-#include <list>
 #include <vector>
+#include <list>
+
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////
@@ -52,6 +53,7 @@ using namespace std;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 // For new structure !!
 extern void Bmatch_PrepNtks    			( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
 /////

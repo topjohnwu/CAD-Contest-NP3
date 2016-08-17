@@ -134,6 +134,10 @@ struct Abc_Frame_t_
     void *          pAbcBac;
     void *          pAbcCba;
     void *          pAbcPla;
+    // PI_PO_INFO
+    void *    pInformation;
+
+
 #ifdef ABC_USE_CUDD
     DdManager *     dd;            // temporary BDD package
 #endif
