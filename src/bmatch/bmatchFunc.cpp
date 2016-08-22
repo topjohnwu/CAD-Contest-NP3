@@ -87,9 +87,9 @@ void Bmatch_PrepNtks        ( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t *
     // Bmatch_PrintObj( pNtk1 );
     // Bmatch_PrintObj( pNtk2 );
 
-if( (verbose & 1) != 0 ) Bmatch_PrintNtkStats( pNtk1 );
+if( (verbose & 1) != 0 || (verbose & 4) != 0 ) Bmatch_PrintNtkStats( pNtk1 );
 if( (verbose & 2) != 0 ) Bmatch_PrintIO( pNtk1 );
-if( (verbose & 1) != 0 ) Bmatch_PrintNtkStats( pNtk2 );
+if( (verbose & 1) != 0 || (verbose & 4) != 0 ) Bmatch_PrintNtkStats( pNtk2 );
 if( (verbose & 2) != 0 ) Bmatch_PrintIO( pNtk1 );
 
     // Init pInformation
@@ -100,7 +100,7 @@ if( (verbose & 2) != 0 ) Bmatch_PrintIO( pNtk1 );
     Abc_NtkForEachPo( pNtk1, pObj, i ) { 
         tmpWrap = new suppWrap;
         tmpWrap->thisObj = pObj;    
-        (pInformation->_f).push_back(tmpWrap);
+        (pInformation->_f).push_back( tmpWrap );
     }
     Abc_NtkForEachPo( pNtk2, pObj, i ) {
         tmpWrap = new suppWrap;
@@ -117,13 +117,13 @@ if( (verbose & 2) != 0 ) Bmatch_PrintIO( pNtk1 );
         tmpWrap->thisObj = pObj;    
         (pInformation->_y).push_back( tmpWrap );
     }
-    
+if( (verbose & 8) != 0 ) cout << "complete new" << endl; 
     vResult = Sim_ComputeFunSupp( pNtk1, ((verbose & 1) == 0 ? 0 : 1 ) );
 if( (verbose & 1) != 0 ) cout << "Supp information of pNtk1 : " << endl;
     for( int i = 0; i < Abc_NtkPoNum(pNtk1); ++i ) {
     // printf("%d ", ((int *)(vResult->pArray[0]))[i] );
     // cout << "po : " << i << " :: ";
-        for( int k = 0; k < (Abc_NtkPiNum(pNtk1) / 32) + 1; ++k ){
+        for( int k = 0, s = (Abc_NtkPiNum(pNtk1) / 32) + (Abc_NtkPiNum(pNtk1) % 32 == 0 ? 0 : 1); k < s; ++k ){
             unsigned n;
             n = ((unsigned *)(vResult->pArray[i]))[k];
             for( int j = 0, num = (k == (Abc_NtkPiNum(pNtk1) / 32)) ? (( Abc_NtkPiNum(pNtk1) % 32 == 0 ) ? \
@@ -140,16 +140,17 @@ if( (verbose & 1) != 0 ) printf("1");
 else{ if( (verbose & 1) != 0 ) printf("0"); }
                 n >>= 1;
             }
+// if( (verbose & 8) != 0 ) printf("count i %d k %d \n", i, k);
         }
 if( (verbose & 1) != 0 ) cout << endl;
     }
-
+if( (verbose & 8) != 0 ) cout << "complete pNtk1" << endl;
     vResult = Sim_ComputeFunSupp( pNtk2, (((verbose & 1) == 0) ? 0 : 1) );
 if( (verbose & 1) != 0 ) cout << "Supp information of pNtk2 : " << endl;
     for( int i = 0; i < Abc_NtkPoNum(pNtk2); ++i ) {
     // printf("%d ", ((int *)(vResult->pArray[0]))[i] );
     // cout << "po : " << i << " :: ";
-        for( int k = 0; k < (Abc_NtkPiNum(pNtk2) / 32) + 1; ++k ){
+        for( int k = 0, s = (Abc_NtkPiNum(pNtk2) / 32) + (Abc_NtkPiNum(pNtk2) % 32 == 0 ? 0 : 1); k < s; ++k ){
             unsigned n;
             n = ((unsigned *)(vResult->pArray[i]))[k];
             for( int j = 0, num = (k == (Abc_NtkPiNum(pNtk2) / 32)) ? (( Abc_NtkPiNum(pNtk2) % 32 == 0 ) ? \
@@ -169,6 +170,7 @@ else{ if( (verbose & 1) != 0 ) printf("0"); }
         }
 if( (verbose & 1) != 0 ) cout << endl;
     }
+if( (verbose & 8) != 0 ) cout << "complete pNtk2" << endl;
     Abc_FrameSetCurrentNetwork( pAbc, pNtk2 );
     Abc_FrameSetCurrentNetwork( pAbc, pNtk1 );
 
