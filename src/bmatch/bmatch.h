@@ -55,7 +55,7 @@ extern "C" {
 #endif
 
 // For new structure !!
-extern void Bmatch_PrepNtks    			( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2 );
+extern void Bmatch_PrepNtks    			( Abc_Frame_t * pAbc, Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, int verbose );
 /////
 class Node;
 
@@ -81,27 +81,24 @@ struct suppWrap {
 	Abc_Obj_t * 			thisObj;
 	vector< suppWrap * > 	funSupp;
 	vector< suppWrap * > 	unates;
-	vector< suppWrap * > 	binates; 
+	vector< suppWrap * > 	binates;
+	suppWrap(){ numOfInfluence = 0; }
+	inline bool operator > ( const suppWrap & b ) const {
+		return this->numOfInfluence > b.numOfInfluence;
+	}
 };
+inline bool suppWrapComp ( suppWrap * & a, suppWrap * & b ) { return (*a) > (*b); }
 
 typedef struct PI_PO_INFO_ {
 	list< Abc_Obj_t * > 		* _f_match, * _x_match; // For answer !!
 
-	suppWrap 			 		* _f, * _g, * _x, * _y;
-	PI_PO_INFO_() { _f_match = NULL; _x_match = NULL; _f = NULL; _g = NULL; _x = NULL; _y = NULL; }
+	vector< suppWrap * >		_f, _g, _x, _y;
+	PI_PO_INFO_() { _f_match = NULL; _x_match = NULL; }
 	~PI_PO_INFO_() {
 		if( _f_match != NULL )
 			delete [] _f_match;
 		if( _x_match != NULL )
 			delete [] _x_match;
-		if( _f != NULL )
-			delete [] _f;
-		if( _g != NULL )
-			delete [] _g;
-		if( _x != NULL )
-			delete [] _x;
-		if( _y != NULL )
-			delete [] _y;
 	}
 } PI_PO_INFO;
 
