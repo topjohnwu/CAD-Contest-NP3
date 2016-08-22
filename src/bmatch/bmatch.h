@@ -79,7 +79,7 @@ extern int  Bmatch_Output				( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node
 struct suppWrap {
 	int 					numOfInfluence;
 	Abc_Obj_t * 			thisObj;
-	vector< suppWrap * > 	outputs;
+	vector< suppWrap * > 	funSupp;
 	vector< suppWrap * > 	unates;
 	vector< suppWrap * > 	binates; 
 };
