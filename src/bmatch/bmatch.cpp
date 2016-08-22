@@ -94,21 +94,24 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
     int pVerbose = 0;
 
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "aAvVh" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "aAvVdh" ) ) != EOF )
     {
         switch ( c )
         {
         case 'v':
-            pVerbose = 1;
+            pVerbose |= 1;
             break;
         case 'a':
-            pVerbose = 3;
+            pVerbose |= 3;
             break;
         case 'V':
-            pVerbose += 4;
+            pVerbose |= 4;
+            break;
+        case 'd':
+            pVerbose |= 8;
             break;
         case 'A':
-            pVerbose = 7;
+            pVerbose |= 15;
             break;
         default:
             goto usage;
@@ -130,7 +133,12 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
     return 0;
 
 usage:
-    Abc_Print( -2, "usage: bmatchInit [-aAvV] <file1> <file2> \n" );
+    Abc_Print( -2, "usage: bmatchInit [-aAvVd] <file1> <file2> \n" );
+    Abc_Print( -2, "       -v verbose \n" );
+    Abc_Print( -2, "       -a all verbose \n" );
+    Abc_Print( -2, "       -V supp information \n" );
+    Abc_Print( -2, "       -A All message \n" );
+    Abc_Print( -2, "       -d debug message \n" );
     return 1;
 }
 
