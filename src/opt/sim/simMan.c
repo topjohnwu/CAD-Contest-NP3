@@ -207,7 +207,7 @@ Sim_Man_t * Sim_ManStart( Abc_Ntk_t * pNtk, int fLightweight )
 ***********************************************************************/
 void Sim_ManStop( Sim_Man_t * p )
 {
-    Sim_ManPrintStats( p );
+    // Sim_ManPrintStats( p );
     if ( p->vSim0 )        Sim_UtilInfoFree( p->vSim0 );       
     if ( p->vSim1 )        Sim_UtilInfoFree( p->vSim1 );       
     if ( p->vSuppStr )     Sim_UtilInfoFree( p->vSuppStr );    

@@ -91,12 +91,25 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
     char ** pArgvNew;
     int nArgcNew;
     Abc_Ntk_t * pNtk1, * pNtk2;
+    int pVerbose = 0;
 
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "h" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "aAvVh" ) ) != EOF )
     {
         switch ( c )
         {
+        case 'v':
+            pVerbose = 1;
+            break;
+        case 'a':
+            pVerbose = 3;
+            break;
+        case 'V':
+            pVerbose += 4;
+            break;
+        case 'A':
+            pVerbose = 7;
+            break;
         default:
             goto usage;
         }
@@ -112,13 +125,12 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
     if ( !Abc_NtkPrepareTwoNtks( stdout, NULL, pArgvNew, nArgcNew, &pNtk1, &pNtk2, &fDelete1, &fDelete2 ) )
         return 1;
 
-    Bmatch_PrepNtks( pAbc, pNtk1, pNtk2 );
-    // if( pAbc->pInformation) delete ( PI_PO_INFO * ) pAbc->pInformation;
+    Bmatch_PrepNtks( pAbc, pNtk1, pNtk2, pVerbose );
     
     return 0;
 
 usage:
-    Abc_Print( -2, "usage: bmatchInit <file1> <file2> \n" );
+    Abc_Print( -2, "usage: bmatchInit [-aAvV] <file1> <file2> \n" );
     return 1;
 }
 
