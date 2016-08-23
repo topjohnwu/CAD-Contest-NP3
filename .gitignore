@@ -1,3 +1,7 @@
+# Generated files
+results
+logs
+
 # Compiled Object files
 *.slo
 *.lo

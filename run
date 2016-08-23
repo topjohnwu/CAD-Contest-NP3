@@ -1,25 +1,87 @@
 #!/bin/bash
-if [[ -z "$1" ]]; then
-    echo "Usage: ./run <test case>"
-    exit 1
-fi
-if [[ ! -d "./bmatch_bench/case$1" ]]; then
-    echo "This testcase do not exist!"
-    exit 1
+
+run_case() {
+	FILENAME="${1##*/}"
+	if [[ ! -d "$1" ]]; then
+	    echo "$FILENAME do not exist!"
+	    return
+	fi
+	echo "Running: $FILENAME"
+	( ./abc -c "bmatch $FLAG $1/cir1.v $1/cir2.v" > ./logs/$FILENAME ) &
+	PID=$!
+	for n in {2000..1}; do
+		printf "\r%s " $n
+	 	sleep 1
+	 	# Check if it's still running
+	 	kill -0 $PID 2>/dev/null
+	 	if [[ "$?" -ne "0" ]]; then
+	 		# Not running, check whether core dump
+	 		wait $PID
+	 		if [[ "$?" -eq "0" ]]; then
+	 			printf "\r"
+	 			echo "$FILENAME done!"
+	 			break
+	 		else
+	 			printf "\r"
+	 			echo "$FILENAME exit with an error (might be core dump)"
+	 			break
+	 		fi
+	 	fi
+	done
+	printf "\r"
+	if kill -0 $PID 2>/dev/null ; then
+		kill $PID > /dev/null 2>&1
+		wait $PID > /dev/null 2>&1
+		echo "Timeout! $FILENAME killed"
+	fi
+	mv match.out ./results/$FILENAME 2>/dev/null
+	echo " "
+}
+
+if [[ "$1" = "-h" ]]; then
+	echo "./run [flags pass to abc ... ] [list of cases ... ]"
+	echo "If no cases are specified, it will run through all cases"
+	echo " "
+	echo "ex: ./run -V 0 1 2"
+	exit
 fi
 
-echo "Recompiling abc..."
+trap 'kill $PID > /dev/null 2>&1; wait $PID > /dev/null 2>&1; echo " "; exit' INT
 
 if [[ ! -f "./abc" ]]; then
     echo "Binary \"abc\" hasn't been created!"
     echo "The first compilation will be time consuming"
 fi
 
-make -j4 1>/dev/null
+echo "Recompiling abc..."
+make -j4 > /dev/null
 
 if [[ ! -f "./abc" ]]; then
     echo "Binary compilation failed!"
     exit 1
 fi
 
-./abc -c "bmatch $2 ./bmatch_bench/case$1/cir1.v ./bmatch_bench/case$1/cir2.v"
+FLAG=
+
+# Remove previous results
+rm -rf results logs 2>/dev/null
+
+mkdir ./results
+mkdir ./logs
+
+if [[ $1 =~ -.* ]]; then
+	FLAG=$1
+	shift
+fi
+
+if [[ "$#" -eq "0" ]]; then
+	# Go through all cases
+	for CASE in ./bmatch_bench/* ; do
+		run_case $CASE
+	done
+else
+	# Only run the specified cases
+	for CASE in $@ ; do
+		run_case "./bmatch_bench/case$CASE"
+	done
+fi
