@@ -7,7 +7,7 @@ run_case() {
 	    return
 	fi
 	echo "Running: $FILENAME"
-	( ./abc -c "bmatch $FLAG $1/cir1.v $1/cir2.v" > ./logs/$FILENAME ) &
+	( ./abc -c "bmatchInit $FLAG $1/cir1.v $1/cir2.v; bmatchSolvF" > ./logs/$FILENAME ) &
 	PID=$!
 	for n in {2000..1}; do
 		printf "\r%s " $n
