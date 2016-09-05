@@ -120,6 +120,8 @@ void Abc_FrameInit( Abc_Frame_t * pAbc )
     for( p = s_InitializerStart ; p ; p = p->next )
     	if(p->init)
     		p->init(pAbc);
+
+    pAbc->pInformation = NULL;
 }
 
 

@@ -42,6 +42,7 @@ void Bmatch_End( Abc_Frame_t * pAbc );
 
 static int BmatchCommandBmatch( Abc_Frame_t * pAbc, int argc, char **argv );
 static int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv );
+static int BmatchCommandSolveBaseOnfunSupp( Abc_Frame_t * pAbc, int argc, char ** argv );
 
 #ifdef __cplusplus
 }
@@ -68,6 +69,7 @@ void Bmatch_Init( Abc_Frame_t * pAbc )
 {
     Cmd_CommandAdd( pAbc , "z Bmatch" , "bmatch" , BmatchCommandBmatch , 0 );
     Cmd_CommandAdd( pAbc , "z Bmatch" , "bmatchInit" , BmatchCommandInitTwoCircuits , 0 );
+    Cmd_CommandAdd( pAbc , "z Bmatch" , "bmatchSolvF" , BmatchCommandSolveBaseOnfunSupp , 0 );
 }
 
 void Bmatch_End( Abc_Frame_t * pAbc )
@@ -91,30 +93,23 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
     char ** pArgvNew;
     int nArgcNew;
     Abc_Ntk_t * pNtk1, * pNtk2;
-    int pVerbose = 0;
-
+    int pVerbose = 0, pTime = 0;
+    abctime clkTotal = Abc_Clock();
+ 
     Extra_UtilGetoptReset();
-    while ( ( c = Extra_UtilGetopt( argc, argv, "aAvVdh" ) ) != EOF )
+    while ( ( c = Extra_UtilGetopt( argc, argv, "aAvVdRITh" ) ) != EOF )
     {
         switch ( c )
         {
-        case 'v':
-            pVerbose |= 1;
-            break;
-        case 'a':
-            pVerbose |= 3;
-            break;
-        case 'V':
-            pVerbose |= 4;
-            break;
-        case 'd':
-            pVerbose |= 8;
-            break;
-        case 'A':
-            pVerbose |= 15;
-            break;
-        default:
-            goto usage;
+            case 'v':   pVerbose |= 1;  break;
+            case 'a':   pVerbose |= 3;  break;
+            case 'V':   pVerbose |= 4;  break;
+            case 'd':   pVerbose |= 8;  break;
+            case 'A':   pVerbose |= 15; break;
+            case 'R':   pVerbose |= 16; break;
+            case 'I':   pVerbose |= 32; break;
+            case 'T':   pTime = 1;      break;
+            default:    goto usage;
         }
     }
 
@@ -130,15 +125,78 @@ int BmatchCommandInitTwoCircuits( Abc_Frame_t * pAbc, int argc, char ** argv )
 
     Bmatch_PrepNtks( pAbc, pNtk1, pNtk2, pVerbose );
     
+    if( pTime )
+        ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
+
     return 0;
 
 usage:
-    Abc_Print( -2, "usage: bmatchInit [-aAvVd] <file1> <file2> \n" );
+    Abc_Print( -2, "usage: bmatchInit [-aAvVdRIT] <file1> <file2> \n" );
     Abc_Print( -2, "       -v verbose \n" );
     Abc_Print( -2, "       -a all verbose \n" );
     Abc_Print( -2, "       -V supp information \n" );
     Abc_Print( -2, "       -A All message \n" );
     Abc_Print( -2, "       -d debug message \n" );
+    Abc_Print( -2, "       -R Resync cir1 & cir2 \n" );
+    Abc_Print( -2, "       -I show PI information \n" );
+    Abc_Print( -2, "       -T Print time information \n" );
+    return 1;
+}
+
+/**Function*************************************************************
+
+  Synopsis    [bmatch command Init]
+
+  Description [get Two Circuits and compute some characteristics]
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
+int BmatchCommandSolveBaseOnfunSupp( Abc_Frame_t * pAbc, int argc, char ** argv )
+{
+    int c, nArgcNew;
+    char ** pArgvNew;
+    int pTime = 0;
+    abctime clkTotal = Abc_Clock();
+ 
+    Extra_UtilGetoptReset();
+    while ( ( c = Extra_UtilGetopt( argc, argv, "Th" ) ) != EOF )
+    {
+        switch ( c )
+        {
+        case 'T':   pTime = 1;  break;
+        default:    goto usage;
+        }
+    }
+
+    pArgvNew = argv + globalUtilOptind;
+    nArgcNew = argc - globalUtilOptind;
+    if( nArgcNew != 0 )
+    {
+        printf("Invalid command!\n");
+        goto usage;
+    }
+    if( pAbc->pInformation == NULL )
+    {
+        printf("bmatchInit first!");
+        return 1;
+    }
+
+    Bmatch_SolveByFunSupp( pAbc, 0 );
+
+    Bmatch_PrintAnswer( pAbc, 0 );
+
+    if( pTime )
+        ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
+
+    return 0;
+
+usage:
+    Abc_Print( -2, "usage: bmatchSolvF [-T] \n" );
+    Abc_Print( -2, "       -T Print time information \n" );
     return 1;
 }
 

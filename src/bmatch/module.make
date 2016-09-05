@@ -3,4 +3,6 @@ SRC +=  src/bmatch/bmatch.cpp \
         src/bmatch/bmatchPrintNtkStats.cpp \
         src/bmatch/bmatchQbf.cpp \
         src/bmatch/bmatchOut.cpp \
-        src/bmatch/bmatchFunc.cpp
+        src/bmatch/bmatchFunc.cpp \
+        src/bmatch/bmatchSolve.cpp \
+        src/bmatch/bmatchNewQbf.cpp
