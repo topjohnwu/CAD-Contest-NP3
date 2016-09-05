@@ -135,7 +135,7 @@ struct Abc_Frame_t_
     void *          pAbcCba;
     void *          pAbcPla;
     // PI_PO_INFO
-    void *    pInformation;
+    void *          pInformation;
 
 
 #ifdef ABC_USE_CUDD

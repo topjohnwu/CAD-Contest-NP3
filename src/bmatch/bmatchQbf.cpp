@@ -48,7 +48,7 @@ void        Bmatch_CreatePOMUXes        ( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, 
 void        Bmatch_PrepareFinal         ( Abc_Ntk_t * pNtk_Qbf, int ILP_constraint );
 void        Bmatch_Construct_MUXes      ( vector< Abc_Obj_t * > & , Abc_Obj_t *& , Abc_Ntk_t *& , int & , int & = fConst0 );
 Abc_Obj_t * Bmatch_Construct_ILP        ( vector< Abc_Obj_t * > & , Abc_Ntk_t *& , const int & k );
-char *      Bmatch_NameAddPrefix        ( char *& pPrefix, int plength, char * pName );
+char *      Bmatch_NameAddPrefix        ( char * pPrefix, int plength, char * pName );
 
 bool        Bmatch_SolveQbf             ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int nItersMax, int fVerbose );
 
@@ -381,7 +381,7 @@ Abc_Obj_t * Bmatch_Construct_ILP( vector< Abc_Obj_t * > & Pool, Abc_Ntk_t *& pNt
     return mux_Pool[Pool.size() - k + 1];
 }
 
-char * Bmatch_NameAddPrefix( char *& pPrefix, int plength, char * pName )
+char * Bmatch_NameAddPrefix( char * pPrefix, int plength, char * pName )
 {
     char * pReturn = new char[30];
     int k = 0;
@@ -520,16 +520,16 @@ bool Bmatch_SolveQbf ( Abc_Ntk_t * pNtk, Vec_Int_t * vPiValues, int nInputs, int
         // printf( "Parameters: " );
         // Abc_NtkVectorPrintPars( vPiValues, nPars );
         // printf( "  Statistics: 0=%d 1=%d\n", nZeros, Vec_IntSize(vPiValues) - nZeros );
-        printf( "Solved after %d iterations.  ", nIters );
+        printf( "Solved after %d iterations. \n", nIters );
         return true;
     }
     else if ( nIters == nItersMax )
     {
-        printf( "Unsolved after %d iterations.  ", nIters );
-        printf( "Quit after %d iterations.  ", nItersMax );
+        printf( "Unsolved after %d iterations. \n", nIters );
+        printf( "Quit after %d iterations. \n", nItersMax );
     }
     else
-        printf( "Implementation does not exist.  " );
+        printf( "Implementation does not exist. \n" );
     return false;    
 }
 

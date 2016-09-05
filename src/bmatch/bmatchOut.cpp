@@ -18,6 +18,7 @@
 
 ***********************************************************************/
 
+#include "base/main/mainInt.h"
 #include "bmatch.h"
 #include <vector>
 #include <string>
@@ -41,6 +42,12 @@ extern "C" {
 void Bmatch_Parse( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, Abc_Ntk_t * pNtkQbf, int * results, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, bool outMuxOn2 );
 int Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup, vector<Node> * outGroup, vector<Node> * constGroup, const int & maxScore, const char* filename );
 
+void Bmatch_UpdateMatchPair ( PI_PO_INFO * pInformation,
+                              vector< pair < suppWrap *, vector< suppWrap * > > > & fomap,
+                              vector< pair < suppWrap *, vector< suppWrap * > > > & gimap,
+                              Abc_Ntk_t * pNtkQbf, int * results );
+void Bmatch_PrintAnswer     ( Abc_Frame_t * pAbc, int verbose );
+
 #ifdef __cplusplus
 }
 #endif
@@ -48,6 +55,126 @@ int Bmatch_Output( Abc_Ntk_t * pNtk1, Abc_Ntk_t * pNtk2, vector<Node> * inGroup,
 ////////////////////////////////////////////////////////////////////////
 ///                     FUNCTION DEFINITIONS                         ///
 ////////////////////////////////////////////////////////////////////////
+
+/**Function*************************************************************
+
+  Synopsis    []
+
+  Description []
+               
+  SideEffects []
+
+  SeeAlso     []
+
+***********************************************************************/
+
+void Bmatch_UpdateMatchPair ( PI_PO_INFO * pInformation,
+                              vector< pair < suppWrap *, vector< suppWrap * > > > & fomap,
+                              vector< pair < suppWrap *, vector< suppWrap * > > > & gimap,
+                              Abc_Ntk_t * pNtkQbf, int * results )
+{
+    pair < suppWrap *, vector< suppWrap * > > tmpPair;
+    vector < suppWrap * > tmpVector;
+    string activeObjName = "";
+    Abc_Obj_t * pObj;
+    int i, pickNum = 0, bits = 0;
+    char state = 'x';
+    bool value, firFlag = false, secFlag = false, answerSign;
+    suppWrap * answer;
+
+cout << "results : ";
+for( int i = 0, n = Abc_NtkPiNum(pNtkQbf); i < n; ++i ) {
+    cout << *(results + i);
+}
+cout << endl;
+
+    Abc_NtkForEachPi( pNtkQbf, pObj, i ) {
+        string objStr = Abc_ObjName( pObj );
+        string objName = objStr.substr( 2, objStr.find_last_of('_') - 2 );
+        value = results[i];
+        if( activeObjName == "" )       activeObjName = objName;
+        if( activeObjName == objName && state == objStr[0] )  pickNum += ( value << bits++ );
+        else {
+cout << "pickNum : " << pickNum << endl;
+            answerSign = pickNum % 2;
+            pickNum   = pickNum / 2;
+cout << "Name  : " << activeObjName << endl;
+cout << "state : " << state << endl;
+cout << "answerSign : " << answerSign << endl;
+cout << "pickNum : " << pickNum << endl;
+// Abc_AigNodeIsConst
+            if( state == 'x' ) {
+                for( int i = 0, n = fomap.size(); i < n; ++i ) {
+                    string nodeName = Abc_ObjName( fomap[i].first->thisObj );
+                    if( activeObjName == nodeName ) {
+
+                cout << "Got ans 1" << endl;
+                        firFlag = true;
+                        answer = fomap[i].second[pickNum];
+                        answer->status = (answerSign ? POSITIVE : NEGATIVE );
+                        for( int j = 0, m = pInformation->_f_match.size(); j < m; ++j ) {
+                            string storeName = Abc_ObjName( pInformation->_f_match[j].first->thisObj );
+                            if( activeObjName == storeName ) {
+                                secFlag = true;
+                                pInformation->_f_match[j].second.push_back( answer );
+                            }
+                        }
+                        if( !secFlag ) {
+                            secFlag = true;
+                            tmpVector.push_back( answer );
+                            tmpPair = make_pair( fomap[i].first, tmpVector );
+                            pInformation->_f_match.push_back(tmpPair);
+                            tmpVector.clear();
+                        }
+                    }
+                }
+            }
+            else if( state == 'y' ) {
+                for( int i = 0, n = gimap.size(); i < n; ++i ) {
+                    string nodeName = Abc_ObjName( gimap[i].first->thisObj );
+                    if( activeObjName == nodeName ) {
+                        firFlag = true;
+                        answer = (pickNum == 0) ? pInformation->_x[pInformation->_x.size() - 1] :
+                                                ( pickNum - 1 > gimap[i].second.size() ? gimap[i].second[gimap[i].second.size() - 1] : gimap[i].second[pickNum - 1] );
+                        string answerName = Abc_ObjName( answer->thisObj );
+                        gimap[i].first->status = (answerSign ? POSITIVE : NEGATIVE );
+                        for( int j = 0, m = pInformation->_x_match.size(); j < m; ++j ) {
+                            string storeName = Abc_ObjName( pInformation->_x_match[j].first->thisObj );
+                            if( answerName == storeName ) {
+                                secFlag = true;
+                                pInformation->_x_match[j].second.push_back( gimap[i].first );
+                            }
+                        }
+                        if( !secFlag ) {
+                            secFlag = true;
+                            tmpVector.push_back( gimap[i].first );
+                            tmpPair = make_pair( answer, tmpVector );
+                            pInformation->_x_match.push_back(tmpPair);
+                            tmpVector.clear();
+                        }
+                    }
+                }
+            }
+
+            assert( firFlag && secFlag );
+            firFlag = false; secFlag = false;
+            if( objStr[0] == 'z' ) break;
+            if( objStr[0] == 'y' ) state = 'y';
+            activeObjName.clear();
+            bits = 0;
+            pickNum = ( value << bits++ );
+        }
+    }
+}
+
+
+void Bmatch_PrintAnswer( Abc_Frame_t * pAbc, int verbose )
+{
+    cout << "Print cir1 PO fi matchings: " << endl;
+    Bmatch_PrintMatchPairs( ((PI_PO_INFO *)pAbc->pInformation)->_f_match );
+    cout << "Print cir1 PI xi matchings: " << endl;
+    Bmatch_PrintMatchPairs( ((PI_PO_INFO *)pAbc->pInformation)->_x_match );
+}
 
 /**Function*************************************************************
 
