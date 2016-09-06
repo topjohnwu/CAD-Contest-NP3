@@ -220,10 +220,25 @@ void Bmatch_SortInformation ( Abc_Frame_t * pAbc, bool verbose )
     }
 }
 
+void Sort_pSuppWraps( vector< suppWrap * > & a ) {
+    suppWrap * tmp;
+    for( int i = 0, n = a.size(); i < n; ++i ) {
+        for( int j = i + 1, m = a.size(); j < m; ++j ) {
+            if( *(a[j]) > *(a[i]) ) {
+                tmp  = a[j];
+                a[j] = a[i];
+                a[i] = tmp;
+            }
+        }
+    }
+}
+
 void Bmatch_SortOne ( vector< suppWrap * > & a ) {
-    sort( (a).begin(), (a).end(), suppWrapComp );
+    // sort( (a).begin(), (a).end(), suppWrapComp );
+    Sort_pSuppWraps( a );
     for( int i = 0; i < a.size(); ++i) {
-        sort( a[i]->funSupp.begin(), a[i]->funSupp.end(), suppWrapComp );
+        Sort_pSuppWraps( a[i]->funSupp );
+        // sort( a[i]->funSupp.begin(), a[i]->funSupp.end(), suppWrapComp );
     };
 }
 
