@@ -47,7 +47,7 @@ void Bmatch_UpdateMatchPair ( PI_PO_INFO * pInformation,
                               vector< pair < suppWrap *, vector< suppWrap * > > > & gimap,
                               Abc_Ntk_t * pNtkQbf, int * results );
 void Bmatch_PrintAnswer     ( Abc_Frame_t * pAbc, int verbose );
-
+void Bmatch_OutputToMatchOut         ( Abc_Frame_t * pAbc, const char *, int verbose );
 #ifdef __cplusplus
 }
 #endif
@@ -174,6 +174,43 @@ void Bmatch_PrintAnswer( Abc_Frame_t * pAbc, int verbose )
     Bmatch_PrintMatchPairs( ((PI_PO_INFO *)pAbc->pInformation)->_f_match );
     cout << "Print cir1 PI xi matchings: " << endl;
     Bmatch_PrintMatchPairs( ((PI_PO_INFO *)pAbc->pInformation)->_x_match );
+}
+
+void Bmatch_OutputToMatchOut         ( Abc_Frame_t * pAbc, const char * fileName, int verbose )
+{
+    PI_PO_INFO * pInformation = (PI_PO_INFO *)pAbc->pInformation;
+    fstream file;
+    file.open( fileName, ios::out );
+    if( file.is_open() ) {
+        for( int i = 0, n = pInformation->_f_match.size(); i < n; ++i ) {
+            file << "OUTGROUP" << endl;
+            file << "1 + " << Abc_ObjName( pInformation->_f_match[i].first->thisObj ) << endl;
+            for ( int j = 0, m = pInformation->_f_match[i].second.size(); j < m; ++j ) {
+                file << "2 " << ( (pInformation->_f_match[i].second[j]->status == NEGATIVE) ? "- " : "+ ")
+                             <<  Abc_ObjName( pInformation->_f_match[i].second[j]->thisObj ) << endl;
+            }
+            file << "END" << endl;
+        }
+        for( int i = 0, n = pInformation->_x_match.size(); i < n; ++i ) {
+        if( pInformation->_x_match[i].first == pInformation->_x[pInformation->_x.size() - 1] ) {
+            file << "CONST0GROUP" << endl;
+            for ( int j = 0, m = pInformation->_x_match[i].second.size(); j < m; ++j ) {
+                file << "2 " << ( (pInformation->_x_match[i].second[j]->status == NEGATIVE) ? "+ " : "- ")
+                             <<  Abc_ObjName( pInformation->_x_match[i].second[j]->thisObj ) << endl;
+            }
+            file << "END" << endl;
+        }
+        else {
+            file << "INGROUP" << endl;
+            file << "1 + " << Abc_ObjName( pInformation->_x_match[i].first->thisObj ) << endl;
+            for ( int j = 0, m = pInformation->_x_match[i].second.size(); j < m; ++j ) {
+                file << "2 " << ( (pInformation->_x_match[i].second[j]->status == NEGATIVE) ? "- " : "+ ")
+                             <<  Abc_ObjName( pInformation->_x_match[i].second[j]->thisObj ) << endl;
+            }
+            file << "END" << endl;
+        }
+        }
+    }
 }
 
 /**Function*************************************************************

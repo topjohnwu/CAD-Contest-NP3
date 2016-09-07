@@ -189,6 +189,8 @@ int BmatchCommandSolveBaseOnfunSupp( Abc_Frame_t * pAbc, int argc, char ** argv 
 
     Bmatch_PrintAnswer( pAbc, 0 );
 
+    Bmatch_OutputToMatchOut( pAbc, "match.out", 0 );
+
     if( pTime )
         ABC_PRT( "Total runtime", Abc_Clock() - clkTotal );
 

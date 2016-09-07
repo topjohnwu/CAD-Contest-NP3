@@ -123,8 +123,9 @@ extern void Bmatch_UpdateMatchPair          ( PI_PO_INFO * pInformation,
                                               vector< pair < suppWrap *, vector< suppWrap * > > > & gimap,
                                               Abc_Ntk_t * pNtkQbf, int * results );
 
-extern void Bmatch_PrintAnswer( Abc_Frame_t * pAbc, int verbose );
-extern void Bmatch_PrintMatchPairs ( vector< pair < suppWrap *, vector< suppWrap * > > > & a );
+extern void Bmatch_PrintAnswer 				( Abc_Frame_t * pAbc, int verbose );
+extern void Bmatch_PrintMatchPairs 			( vector< pair < suppWrap *, vector< suppWrap * > > > & a );
+extern void Bmatch_OutputToMatchOut 		( Abc_Frame_t * pAbc, const char *,  int verbose );
 
 #ifdef __cplusplus
 }

@@ -121,7 +121,7 @@ bool Bmatch_GetGuess ( vector< vector< suppWrap * > > & f,
 	vector< suppWrap * > mapNodes;
 	suppWrap * tmpWrap1, * tmpWrap2, * tmpW;
 	int piCap = 3, poCap = 1, currentIndex = 0;
-	bool done = false, findPair = false, save = false;
+	bool done = false, findPair = false, save = false, notGood = false;
 
     //int capacity = ( Abc_NtkPoNum( tmpInformation->_cir1 ) - Abc_NtkPoNum( tmpInformation->_cir2 ) );
     //capacity = (capacity >= 0) ? capacity + 1 : 1;
@@ -136,9 +136,12 @@ bool Bmatch_GetGuess ( vector< vector< suppWrap * > > & f,
                         for( int i = 0, n = pInformation->_f_match.size(); i < n; ++i ) {
                             if( tmpWrap2 == pInformation->_f_match[i].first ) {
                                 f[currentIndex].erase(f[currentIndex].begin());
-                                continue;
+                    cout << "Not GOOD " << endl;
+                                notGood = true;
+                                break;
                             }
                         }
+                        if( !notGood ) {
                         for( int i = (currentIndex >= poCap) ? currentIndex - poCap : 0,
                                  n = max((int)g.size(), currentIndex + poCap); i < n; ++i ) {
                             for( int j = 0, m = g[i].size(); j < m; ++j ) {
@@ -149,6 +152,7 @@ bool Bmatch_GetGuess ( vector< vector< suppWrap * > > & f,
                                         if( pInformation->_f_already_try[k].first == tmpWrap2 ) {
                                             pInformation->_f_already_try[k].second.push_back(tmpWrap1);
                                             save = true;
+                                            break;
                                         }
                                     }
                                     if( !save ) {
@@ -164,6 +168,8 @@ bool Bmatch_GetGuess ( vector< vector< suppWrap * > > & f,
                             }
                             if( findPair ) break;
                         }
+                        }
+                        notGood = false;
                         if( !findPair ) {
                             f[currentIndex].erase(f[currentIndex].begin());
                         }
@@ -245,7 +251,6 @@ void Bmatch_SolveByFunSupp ( Abc_Frame_t * pAbc, int verbose )
         if( Bmatch_SolveQbf( pNtkQbf, vPiValues, forAllVarsNum, 200, 0 ) ) {
             cout << "Solve" << endl;
             Bmatch_UpdateMatchPair( tmpInformation, fomap, gimap, pNtkQbf, vPiValues->pArray );
-            break;
         }
         fomap.clear();
         gimap.clear();
